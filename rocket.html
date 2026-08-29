@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+<title>Geams Rocket</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:Arial,sans-serif;
+    color:#fff;
+    background:
+        radial-gradient(circle at 50% 15%,#172d5a 0%,#080d1c 45%,#02040a 100%);
+    overflow:hidden;
+}
+
+.app{
+    width:min(500px,94%);
+    margin:auto;
+    padding:18px 0 30px;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:900;
+}
+
+.balance{
+    background:#ffffff12;
+    border:1px solid #ffffff20;
+    padding:10px 14px;
+    border-radius:15px;
+    font-weight:bold;
+}
+
+.card{
+    background:#091328ed;
+    border:1px solid #ffffff15;
+    border-radius:25px;
+    padding:16px;
+    box-shadow:0 20px 70px #0009;
+}
+
+.title{
+    text-align:center;
+    font-size:18px;
+    font-weight:900;
+}
+
+.multiplier{
+    text-align:center;
+    font-size:48px;
+    font-weight:900;
+    margin:8px 0 14px;
+    color:#39ff91;
+}
+
+.arena{
+    position:relative;
+    height:300px;
+    overflow:hidden;
+    border-radius:20px;
+    border:1px solid #ffffff15;
+    background:
+        linear-gradient(#ffffff05 1px,transparent 1px),
+        linear-gradient(90deg,#ffffff05 1px,transparent 1px),
+        radial-gradient(circle at 50% 80%,#16315d,#030712 70%);
+    background-size:35px 35px,35px 35px,100% 100%;
+}
+
+.star{
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:white;
+    border-radius:50%;
+    opacity:.7;
+}
+
+.rocket{
+    position:absolute;
+    left:50%;
+    bottom:35px;
+    transform:translateX(-50%);
+    font-size:55px;
+    transition:bottom .1s linear;
+    filter:drop-shadow(0 0 12px #39ff91);
+}
+
+.flame{
+    position:absolute;
+    left:50%;
+    bottom:15px;
+    transform:translateX(-50%);
+    font-size:28px;
+    display:none;
+}
+
+.flame.show{
+    display:block;
+    animation:flame .15s infinite alternate;
+}
+
+@keyframes flame{
+    from{
+        transform:translateX(-50%) scale(1);
+    }
+    to{
+        transform:translateX(-50%) scale(1.25);
+    }
+}
+
+.status{
+    text-align:center;
+    color:#9aa8c4;
+    font-size:13px;
+    margin:13px 0;
+}
+
+input{
+    width:100%;
+    padding:15px;
+    border:1px solid #ffffff18;
+    border-radius:15px;
+    background:#101d35;
+    color:white;
+    outline:none;
+    text-align:center;
+    font-size:18px;
+}
+
+button{
+    width:100%;
+    border:0;
+    border-radius:15px;
+    padding:15px;
+    margin-top:10px;
+    font-size:16px;
+    font-weight:900;
+    cursor:pointer;
+}
+
+button:disabled{
+    opacity:.45;
+}
+
+.start{
+    background:#39ff91;
+    color:#03130a;
+}
+
+/* زر السحب */
+.cashout{
+    background:#ffd43b;
+    color:#171000;
+    display:none;
+}
+
+.cashout.show{
+    display:block !important;
+}
+
+.result{
+    text-align:center;
+    margin-top:14px;
+    padding:14px;
+    border-radius:16px;
+    background:#ffffff08;
+    display:none;
+}
+
+.result.show{
+    display:block;
+}
+
+.win{
+    color:#39ff91;
+    font-size:22px;
+    font-weight:900;
+}
+
+.lose{
+    color:#ff5b6e;
+    font-size:22px;
+    font-weight:900;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="top">
+
+        <div class="logo">
+            🚀 GEAMS
+        </div>
+
+        <div class="balance">
+            💎 <span id="balance">1000.00</span>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="title">
+            ROCKET
+        </div>
+
+        <div class="multiplier" id="multiplier">
+            1.00x
+        </div>
+
+        <div class="arena">
+
+            <div id="stars"></div>
+
+            <div class="rocket" id="rocket">
+                🚀
+            </div>
+
+            <div class="flame" id="flame">
+                🔥
+            </div>
+
+        </div>
+
+        <div class="status" id="status">
+            أدخل المبلغ ثم اضغط ابدأ
+        </div>
+
+        <input
+            id="amount"
+            type="number"
+            min="1"
+            step="1"
+            value="10"
+            placeholder="مبلغ اللعب"
+        >
+
+        <button
+            class="start"
+            id="start"
+        >
+            🚀 ابدأ الجولة
+        </button>
+
+        <button
+            class="cashout"
+            id="cashout"
+        >
+            💰 سحب عند
+            <span id="cashMultiplier">1.00x</span>
+        </button>
+
+        <div
+            class="result"
+            id="result"
+        ></div>
+
+    </div>
+
+</div>
+
+<script>
+
+const tg = window.Telegram?.WebApp;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+}
+
+const $ = id => document.getElementById(id);
+
+let balance = 1000;
+let running = false;
+let multiplier = 1;
+let timer = null;
+let crashPoint = 0;
+let bet = 0;
+
+
+/* تحديث الرصيد */
+function updateBalance(){
+
+    $("balance").textContent =
+        balance.toFixed(2);
+
+}
+
+
+/* النجوم */
+function createStars(){
+
+    for(let i = 0; i < 70; i++){
+
+        const star =
+            document.createElement("div");
+
+        star.className = "star";
+
+        star.style.left =
+            Math.random() * 100 + "%";
+
+        star.style.top =
+            Math.random() * 100 + "%";
+
+        star.style.opacity =
+            Math.random() * .8 + .2;
+
+        $("stars").appendChild(star);
+    }
+
+}
+
+createStars();
+
+
+/* نقطة الانفجار التجريبية */
+function randomCrash(){
+
+    return Number(
+        (1.15 + Math.random() * 4.85)
+        .toFixed(2)
+    );
+
+}
+
+
+/* إعادة الصاروخ */
+function resetRocket(){
+
+    $("rocket").style.bottom = "35px";
+
+    $("flame")
+        .classList
+        .remove("show");
+
+}
+
+
+/* إظهار النتيجة */
+function showResult(text, className){
+
+    $("result").innerHTML =
+        `<div class="${className}">${text}</div>`;
+
+    $("result")
+        .classList
+        .add("show");
+
+}
+
+
+/* بدء الجولة */
+function startGame(){
+
+    if(running){
+        return;
+    }
+
+    bet =
+        Number($("amount").value);
+
+    if(!bet || bet <= 0){
+
+        $("status").textContent =
+            "❌ أدخل مبلغاً صحيحاً";
+
+        return;
+    }
+
+    if(bet > balance){
+
+        $("status").textContent =
+            "❌ الرصيد غير كافٍ";
+
+        return;
+    }
+
+
+    /* خصم الرهان */
+    balance -= bet;
+
+    updateBalance();
+
+
+    running = true;
+
+    multiplier = 1;
+
+    crashPoint =
+        randomCrash();
+
+
+    $("result")
+        .classList
+        .remove("show");
+
+
+    /* إظهار زر السحب */
+    $("cashout")
+        .classList
+        .add("show");
+
+
+    $("start").disabled = true;
+
+    $("amount").disabled = true;
+
+
+    $("status").textContent =
+        "🚀 الصاروخ انطلق!";
+
+
+    $("flame")
+        .classList
+        .add("show");
+
+
+    $("multiplier").textContent =
+        "1.00x";
+
+    $("cashMultiplier").textContent =
+        "1.00x";
+
+
+    timer = setInterval(() => {
+
+        multiplier +=
+            0.01 + multiplier * 0.012;
+
+        multiplier =
+            Number(multiplier.toFixed(2));
+
+
+        $("multiplier").textContent =
+            multiplier.toFixed(2) + "x";
+
+
+        $("cashMultiplier").textContent =
+            multiplier.toFixed(2) + "x";
+
+
+        const height =
+            Math.min(
+                235,
+                35 + (multiplier - 1) * 45
+            );
+
+
+        $("rocket").style.bottom =
+            height + "px";
+
+
+        if(multiplier >= crashPoint){
+
+            crash();
+
+        }
+
+    },100);
+
+}
+
+
+/* الانفجار */
+function crash(){
+
+    clearInterval(timer);
+
+    timer = null;
+
+    running = false;
+
+
+    $("cashout")
+        .classList
+        .remove("show");
+
+
+    $("start").disabled = false;
+
+    $("amount").disabled = false;
+
+
+    $("flame")
+        .classList
+        .remove("show");
+
+
+    $("status").textContent =
+        "💥 الصاروخ انفجر!";
+
+
+    showResult(
+        "💥 خسرت الجولة عند " +
+        multiplier.toFixed(2) +
+        "x",
+        "lose"
+    );
+
+
+    setTimeout(
+        resetGame,
+        2500
+    );
+
+}
+
+
+/* السحب */
+function cashOut(){
+
+    if(!running){
+        return;
+    }
+
+
+    clearInterval(timer);
+
+    timer = null;
+
+    running = false;
+
+
+    const win =
+        Number(
+            (bet * multiplier)
+            .toFixed(2)
+        );
+
+
+    balance += win;
+
+    updateBalance();
+
+
+    $("cashout")
+        .classList
+        .remove("show");
+
+
+    $("start").disabled = false;
+
+    $("amount").disabled = false;
+
+
+    $("flame")
+        .classList
+        .remove("show");
+
+
+    $("status").textContent =
+        "🎉 تم السحب بنجاح";
+
+
+    showResult(
+        "🏆 ربحت " +
+        win.toFixed(2) +
+        " عند " +
+        multiplier.toFixed(2) +
+        "x",
+        "win"
+    );
+
+
+    setTimeout(
+        resetGame,
+        2500
+    );
+
+}
+
+
+/* إعادة الجولة */
+function resetGame(){
+
+    multiplier = 1;
+
+    bet = 0;
+
+
+    $("multiplier").textContent =
+        "1.00x";
+
+
+    $("cashMultiplier").textContent =
+        "1.00x";
+
+
+    $("status").textContent =
+        "أدخل المبلغ ثم اضغط ابدأ";
+
+
+    $("result")
+        .classList
+        .remove("show");
+
+
+    resetRocket();
+
+}
+
+
+/* الأزرار */
+$("start").onclick =
+    startGame;
+
+$("cashout").onclick =
+    cashOut;
+
+</script>
+
+</body>
+  </html>
