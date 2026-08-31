@@ -3,2365 +3,445 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎮 ألعاب متعددة</title>
+    <title>Telegram Mini App Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
         :root {
-            --bg: #0a0d17;
-            --panel: #11151f;
-            --panel2: #1a1f2e;
-            --border: #2a3045;
-            --muted: #8a94a8;
-            --text: #f0f4ff;
-            --gold: #f7c948;
-            --gold-dim: rgba(247, 201, 72, 0.12);
-            --green: #2bd67b;
-            --red: #ff4d6a;
-            --blue: #249cff;
-            --shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
-            --radius: 20px;
-            --cyan: #24c8ff;
-        }
-        html,
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-bottom: 80px;
-        }
-        .app {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 14px 16px 20px;
-        }
-        .hud {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .hud-left {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .hud-pill {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 6px 16px 6px 14px;
-            font-size: 14px;
-            font-weight: 700;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-        }
-        .hud-pill .icon {
-            font-size: 18px;
-        }
-        .hud-pill .value {
-            color: var(--gold);
-            font-size: 17px;
-            min-width: 28px;
-        }
-        .hud-pill .label {
-            color: var(--muted);
-            font-weight: 500;
-            font-size: 12px;
-        }
-        .hud-pill .ton-icon {
-            font-size: 16px;
-            color: var(--cyan);
-            font-weight: 900;
-            margin-right: 2px;
-        }
-        .hud-btn {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 6px 18px 6px 14px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.25s ease;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-        }
-        .hud-btn:hover {
-            border-color: var(--gold);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(247, 201, 72, 0.1);
-        }
-        .hud-btn .badge {
-            background: var(--red);
-            color: #fff;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-        }
-        .view {
-            display: none;
-        }
-        .view.active {
-            display: block;
-        }
-        header {
-            display: none;
-        }
-        .game-card {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 18px 20px;
-            margin-bottom: 14px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.25s ease;
-        }
-        .game-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-        }
-        .game-card.rocket-card {
-            background: linear-gradient(135deg, #2a0a18, #6a1030);
-            border-color: #f43f5e;
-        }
-        .game-card.mines-card {
-            background: linear-gradient(135deg, #1a1a3a, #2a4a6a);
-            border-color: #4a8aff;
-        }
-        .game-card.xo-card {
-            background: linear-gradient(135deg, #1a2a1a, #2a5a2a);
-            border-color: #2bd67b;
-        }
-        .game-card.box-card {
-            background: linear-gradient(135deg, #2a1a3a, #5a2a6a);
-            border-color: #b47aff;
-        }
-        .game-card h2 {
-            font-size: 20px;
-        }
-        .game-card p {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-top: 4px;
-        }
-        .game-card .card-icon {
-            font-size: 32px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #141820;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0 12px;
-            z-index: 100;
-        }
-        .nav-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 10px;
-            color: var(--muted);
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 4px 12px;
-            transition: 0.2s ease;
-        }
-        .nav-btn.active {
-            color: #fff;
-        }
-        .nav-btn span:first-child {
-            font-size: 22px;
-            margin-bottom: 2px;
-        }
-        .back-btn {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            color: #fff;
-            padding: 8px 18px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-        .back-btn:hover {
-            border-color: var(--gold);
-        }
-        .balance-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 10px;
-        }
-        .balance-pill {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            background: #1c1e21;
-            border: 1px solid #33363a;
-            border-radius: 40px;
-            padding: 6px 14px;
-        }
-        .balance-pill .bal-value {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--gold);
-        }
-        .balance-pill .ton-label {
-            font-size: 13px;
-            color: var(--cyan);
-            font-weight: 700;
-        }
-        .bet-box {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px 18px;
-            margin-top: 6px;
-        }
-        .bet-box .label {
-            display: block;
-            color: var(--muted);
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .bet-box .input-row {
-            display: flex;
-            align-items: center;
-            background: var(--panel2);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 4px 12px;
-        }
-        .bet-box .bet-input {
-            width: 100%;
-            background: transparent;
-            border: 0;
-            outline: 0;
-            color: #fff;
-            font-size: 20px;
-            padding: 10px 4px;
-            text-align: right;
-        }
-        .bet-box .ton-label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--cyan);
-            font-weight: 800;
-            white-space: nowrap;
-            font-size: 15px;
-        }
-        .bet-box .ton-label .mini-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: #229ED9;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 13px;
-        }
-        .quick-bets {
-            display: flex;
-            gap: 8px;
-            margin: 8px 0 4px;
-            flex-wrap: wrap;
-        }
-        .quick-bets button {
-            flex: 1;
-            min-width: 50px;
-            background: var(--panel2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--muted);
-            padding: 6px 0;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-        .quick-bets button:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: var(--gold-dim);
-        }
-        .main-btn {
-            width: 100%;
-            height: 58px;
-            margin-top: 12px;
-            border: 0;
-            border-radius: 16px;
-            color: #fff;
-            font-size: 22px;
-            font-weight: 900;
-            background: linear-gradient(100deg, #1a7acc, #2862ec);
-            box-shadow: 0 6px 24px rgba(20, 120, 240, 0.3);
-            cursor: pointer;
-            transition: 0.25s ease;
-        }
-        .main-btn.cashout {
-            background: linear-gradient(100deg, #18a95c, #25d66f);
-            box-shadow: 0 6px 24px rgba(43, 214, 123, 0.3);
-        }
-        .main-btn:disabled {
-            background: #4a505f;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-        .main-btn:active {
-            transform: scale(0.96);
-        }
-        .status {
-            text-align: center;
-            min-height: 24px;
-            padding-top: 10px;
-            color: var(--muted);
-            font-size: 14px;
-            font-weight: 500;
-            transition: 0.3s ease;
-        }
-        .status.win {
-            color: var(--green);
-        }
-        .status.lose {
-            color: var(--red);
-        }
-        .status.info {
-            color: var(--blue);
-        }
-
-        /* ===== روليت ===== */
-        .roulette-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px 0;
-            width: 100%;
-        }
-        .roulette-wheel {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 10px auto;
-            border-radius: 50%;
-            border: 4px solid var(--gold);
-            box-shadow: 0 0 40px rgba(247, 201, 72, 0.2), inset 0 0 40px rgba(247, 201, 72, 0.05);
-            overflow: hidden;
-            background: #1a1a2a;
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-        }
-        .roulette-wheel .segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            top: 0;
-            left: 50%;
-            transform-origin: 0% 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 900;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-        }
-        .roulette-wheel .segment .label {
-            position: absolute;
-            font-size: 22px;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-            transform: rotate(var(--angle, 0deg));
-            transform-origin: 0 0;
-            top: 12px;
-            left: 50%;
-            white-space: nowrap;
-        }
-        .roulette-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 40% 40%, #3a2a5a, #1a1a3a);
-            border: 3px solid var(--gold);
-            box-shadow: 0 0 30px rgba(247, 201, 72, 0.3);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: var(--gold);
-            font-weight: 900;
-            pointer-events: none;
-        }
-        .roulette-pointer {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 15;
-            font-size: 28px;
-            color: var(--gold);
-            text-shadow: 0 0 20px rgba(247, 201, 72, 0.5);
-            pointer-events: none;
-            filter: drop-shadow(0 0 10px rgba(247, 201, 72, 0.3));
-        }
-        .roulette-result {
-            font-size: 28px;
-            font-weight: 900;
-            margin: 12px 0 6px;
-            min-height: 50px;
-            text-align: center;
-        }
-        .roulette-result .ball-emoji {
-            font-size: 48px;
-            display: inline-block;
-        }
-        .roulette-stats {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            font-size: 14px;
-            color: var(--muted);
-            margin: 6px 0;
-            flex-wrap: wrap;
-        }
-        .roulette-stats span {
-            background: var(--panel2);
-            padding: 4px 14px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-        }
-        .roulette-stats .count {
-            color: var(--gold);
-            font-weight: 700;
-        }
-        .roulette-price {
-            font-size: 16px;
-            color: var(--gold);
-            font-weight: 700;
-            background: var(--gold-dim);
-            padding: 4px 16px;
-            border-radius: 30px;
-            border: 1px solid rgba(247, 201, 72, 0.2);
-        }
-
-        /* ===== لعبة الصاروخ ===== */
-        .game-wrapper {
-            position: relative;
-            border-radius: var(--radius);
-            overflow: hidden;
-            border: 1px solid var(--border);
-            background: radial-gradient(ellipse at 50% 60%, #16202e, #060a12);
-            box-shadow: var(--shadow);
-            touch-action: none;
-        }
-        .game-area {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            overflow: hidden;
-            background: transparent;
-        }
-        #star-container {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .star {
-            position: absolute;
-            border-radius: 50%;
-            background: #fff;
-            will-change: transform, top, left;
-        }
-        .flight-line {
-            position: absolute;
-            left: 10%;
-            top: 50%;
-            width: 80%;
-            height: 2px;
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(64, 174, 255, 0.3));
-            transform: translateY(-50%);
-            opacity: 0.4;
-            z-index: 1;
-        }
-        .multiplier {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
-            font-size: 38px;
-            font-weight: 900;
-            text-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 80px rgba(0, 0, 0, 0.5);
-            pointer-events: none;
-            letter-spacing: 1px;
-        }
-        .multiplier.waiting {
-            font-size: 52px;
-            color: #fff;
-        }
-        .multiplier.crashed {
-            color: var(--red);
-            animation: pulse-red 0.5s ease infinite alternate;
-        }
-        @keyframes pulse-red {
-            0% {
-                opacity: 0.7;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1.05);
-            }
-        }
-
-        /* ===== صاروخ (صورة) ===== */
-        .rocket-img {
-            position: absolute;
-            width: 110px;
-            height: 110px;
-            object-fit: contain;
-            left: 10%;
-            top: 50%;
-            z-index: 4;
-            filter: drop-shadow(0 0 25px rgba(255, 70, 70, 0.3));
-            display: none;
-            transform-origin: 50% 50%;
-            will-change: transform, left, top;
-            transition: left 1.8s cubic-bezier(0.34, 1.56, 0.64, 1), top 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .rocket-img.moving {
-            display: block;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%) rotate(0deg) scale(0.85);
-            transition: left 1.8s cubic-bezier(0.34, 1.56, 0.64, 1), top 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .rocket-img.flying {
-            display: block;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%) rotate(0deg) scale(0.85);
-            transition: none;
-        }
-
-        .trail {
-            position: absolute;
-            width: 100px;
-            height: 10px;
-            border-radius: 20px;
-            background: linear-gradient(90deg, #ff3348, #ff8800, transparent);
-            left: 10%;
-            top: 50%;
-            opacity: 0;
-            z-index: 2;
-            filter: blur(4px);
-            transform: translateY(-50%);
-            transition: opacity 0.3s ease, left 1.8s cubic-bezier(0.34, 1.56, 0.64, 1), top 1.8s cubic-bezier(0.34, 1.56,
-                    0.64, 1);
-            pointer-events: none;
-        }
-        .trail.active {
-            opacity: 0.9;
-        }
-        .trail.centered {
-            left: 50% !important;
-            top: 50% !important;
-            transform: translate(-50%, -50%);
-            transition: none;
-        }
-
-        .crash-boom {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 90px;
-            pointer-events: none;
-            z-index: 20;
-            animation: boom-effect 0.9s ease-out both;
-            text-shadow: 0 0 60px rgba(255, 70, 70, 0.6);
-        }
-        @keyframes boom-effect {
-            0% {
-                transform: scale(0.1) rotate(-20deg);
-                opacity: 0;
-            }
-            30% {
-                transform: scale(1.4) rotate(5deg);
-                opacity: 1;
-            }
-            70% {
-                transform: scale(1) rotate(-2deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1.8) rotate(3deg);
-                opacity: 0;
-            }
-        }
-
-        .history-wrap {
-            margin: 12px 0 10px;
-            overflow: hidden;
-        }
-        .history {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 4px 0 8px;
-            scrollbar-width: none;
-            direction: ltr;
-        }
-        .history::-webkit-scrollbar {
-            display: none;
-        }
-        .history-item {
-            flex: 0 0 auto;
-            min-width: 68px;
-            text-align: center;
-            padding: 8px 12px;
-            border-radius: 14px;
-            font-weight: 900;
-            font-size: 15px;
-            border: 2px solid;
-            transition: 0.2s ease;
-            background: rgba(255, 255, 255, 0.03);
-        }
-        .history-item.win {
-            border-color: var(--green);
-            color: var(--green);
-            background: rgba(43, 214, 123, 0.08);
-        }
-        .history-item.lose {
-            border-color: var(--red);
-            color: var(--red);
-            background: rgba(255, 77, 106, 0.08);
-        }
-        .players-title {
-            display: flex;
-            justify-content: space-between;
-            color: var(--muted);
-            font-size: 12px;
-            margin: 10px 3px 5px;
-        }
-        .players {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 6px;
-            min-height: 60px;
-        }
-        .player-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 12px;
-            background: rgba(40, 48, 52, 0.5);
-            border: 1px solid rgba(54, 190, 220, 0.12);
-            margin-bottom: 5px;
-        }
-        .player-row:last-child {
-            margin-bottom: 0;
-        }
-        .player-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #2b3035;
-            flex: 0 0 36px;
-        }
-        .player-info {
-            flex: 1;
-            min-width: 0;
-            text-align: right;
-        }
-        .player-name {
-            font-size: 13px;
-            font-weight: 800;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .player-bet {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 2px;
-            background: #123743;
-            color: #6edfff;
-            border-radius: 12px;
-            padding: 2px 10px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .player-result {
-            font-size: 16px;
-            font-weight: 900;
-            color: #55dcff;
-            white-space: nowrap;
-        }
-        .empty-players {
-            padding: 20px 8px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        /* ===== XO ===== */
-        .xo-board {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            max-width: 360px;
-            margin: 16px auto;
-        }
-        .xo-cell {
-            aspect-ratio: 1;
-            background: var(--panel2);
-            border: 2px solid var(--border);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: 0.2s ease;
-            color: var(--text);
-        }
-        .xo-cell:hover:not(.taken) {
-            border-color: var(--gold);
-            background: var(--gold-dim);
-        }
-        .xo-cell.taken {
-            cursor: default;
-        }
-        .xo-cell.x {
-            color: var(--blue);
-        }
-        .xo-cell.o {
-            color: var(--green);
-        }
-        .xo-status {
-            text-align: center;
-            font-size: 20px;
-            font-weight: 700;
-            margin: 8px 0 4px;
-            min-height: 40px;
-        }
-        .xo-score {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--muted);
-            margin-bottom: 12px;
-        }
-        .xo-score span {
-            color: var(--text);
-        }
-        .xo-score .x-score {
-            color: var(--blue);
-        }
-        .xo-score .o-score {
-            color: var(--green);
-        }
-        .xo-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-        .xo-actions button {
-            background: var(--panel2);
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 8px 24px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.25s ease;
-        }
-        .xo-actions button:hover {
-            border-color: var(--gold);
-            background: var(--gold-dim);
-        }
-        .xo-actions .btn-reset {
-            background: var(--red);
-            border-color: var(--red);
-        }
-        .xo-actions .btn-reset:hover {
-            background: #ff3a5a;
-        }
-
-        /* ===== Mines ===== */
-        .mines-board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            max-width: 400px;
-            margin: 12px auto;
-        }
-        .mine-cell {
-            aspect-ratio: 1;
-            background: var(--panel2);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            cursor: pointer;
-            transition: 0.2s ease;
-            color: var(--text);
-            font-weight: 900;
-        }
-        .mine-cell:hover:not(.revealed) {
-            border-color: var(--gold);
-            background: var(--gold-dim);
-        }
-        .mine-cell.revealed {
-            cursor: default;
-            border-color: var(--border);
-        }
-        .mine-cell.diamond {
-            border-color: var(--green);
-            background: rgba(43, 214, 123, 0.08);
-        }
-        .mine-cell.mine {
-            border-color: var(--red);
-            background: rgba(255, 77, 106, 0.12);
-        }
-        .mine-cell.mine-explode {
-            animation: explode 0.5s ease both;
-        }
-        @keyframes explode {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.3);
-                border-color: #ff0;
-            }
-            100% {
-                transform: scale(0.8);
-                opacity: 0.3;
-            }
-        }
-        .mines-progress {
-            text-align: center;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--muted);
-            margin: 6px 0 4px;
-        }
-        .mines-progress span {
-            color: var(--gold);
-        }
-
-        /* ===== الحقيبة ===== */
-        .bag-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .bag-overlay.open {
-            display: flex;
-        }
-        .bag-panel {
-            width: 100%;
-            max-width: 500px;
-            max-height: 92vh;
-            background: linear-gradient(160deg, #141c2e, #0b0f1a);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-            padding: 22px 20px 20px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .bag-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .bag-header h2 {
-            font-size: 22px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-        }
-        .bag-header .bag-stats {
-            font-size: 13px;
-            color: var(--muted);
-            background: rgba(255, 255, 255, 0.04);
-            padding: 4px 16px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-        }
-        .bag-header .bag-stats strong {
-            color: var(--gold);
-        }
-        .bag-close {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 22px;
-            cursor: pointer;
-            transition: 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .bag-close:hover {
-            background: rgba(255, 70, 70, 0.15);
-            border-color: var(--red);
-            color: var(--red);
-            transform: rotate(90deg);
-        }
-        .bag-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 12px;
-            overflow-y: auto;
-            padding: 2px 2px 8px;
-            flex: 1;
-            max-height: 52vh;
-        }
-        .bag-grid::-webkit-scrollbar {
-            width: 4px;
-        }
-        .bag-grid::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 4px;
-        }
-        .bag-grid::-webkit-scrollbar-thumb {
-            background: rgba(247, 201, 72, 0.25);
-            border-radius: 4px;
-        }
-        .bag-item {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px 10px 10px;
-            text-align: center;
-            transition: 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        .bag-item:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(247, 201, 72, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        }
-        .bag-item .item-emoji {
-            font-size: 34px;
-            line-height: 1.2;
-        }
-        .bag-item .item-name {
-            font-size: 11px;
-            color: var(--muted);
-            font-weight: 500;
-        }
-        .bag-item .item-price {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--gold);
-            background: var(--gold-dim);
-            padding: 1px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(247, 201, 72, 0.06);
-        }
-        .bag-item .item-actions {
-            display: flex;
-            gap: 5px;
-            margin-top: 6px;
-            width: 100%;
-        }
-        .bag-item .item-actions button {
-            flex: 1;
-            padding: 5px 0;
-            border: none;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-        .bag-item .btn-sell {
-            background: linear-gradient(145deg, #1d6b3e, #13522e);
-            color: #7fdfa0;
-        }
-        .bag-item .btn-sell:hover:not(:disabled) {
-            background: linear-gradient(145deg, #2a8a4e, #1a6a38);
-            color: #bfffcf;
-            transform: scale(1.04);
-            box-shadow: 0 4px 20px rgba(42, 122, 74, 0.25);
-        }
-        .bag-item .btn-sell:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        .bag-item .btn-keep {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--muted);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .bag-item .btn-keep:hover {
-            background: rgba(255, 255, 255, 0.10);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.12);
-        }
-        .bag-item .kept-badge {
-            font-size: 10px;
-            color: var(--cyan);
-            background: rgba(36, 200, 255, 0.08);
-            padding: 1px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(36, 200, 255, 0.08);
-            margin-top: 2px;
-        }
-        .bag-empty {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 50px 20px;
-            color: rgba(255, 255, 255, 0.15);
-        }
-        .bag-empty .big-emoji {
-            font-size: 64px;
-            display: block;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-        .bag-empty p {
-            font-size: 16px;
-            font-weight: 400;
-        }
-
-        /* ===== زر الحقيبة أسفل الروليت ===== */
-        .bag-under-roulette {
-            margin-top: 16px;
-            width: 100%;
-            max-width: 280px;
-            display: flex;
-            justify-content: center;
-        }
-        .bag-under-roulette .hud-btn {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .game-title-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .game-title-bar .title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--gold);
-        }
-
-        @media (max-width: 700px) {
-            .hud-pill {
-                font-size: 12px;
-                padding: 4px 12px;
-            }
-            .hud-pill .value {
-                font-size: 14px;
-            }
-            .hud-btn {
-                font-size: 12px;
-                padding: 4px 12px;
-            }
-            .multiplier {
-                font-size: 32px;
-            }
-            .multiplier.waiting {
-                font-size: 42px;
-            }
-            .rocket-img {
-                width: 80px;
-                height: 80px;
-            }
-            .game-card h2 {
-                font-size: 17px;
-            }
-            .main-btn {
-                height: 50px;
-                font-size: 18px;
-            }
-            .xo-cell {
-                font-size: 36px;
-            }
-            .mine-cell {
-                font-size: 24px;
-            }
-            .roulette-wheel {
-                width: 220px;
-                height: 220px;
-            }
-            .roulette-center {
-                width: 50px;
-                height: 50px;
-                font-size: 16px;
-            }
-            .roulette-result .ball-emoji {
-                font-size: 36px;
-            }
-            .bag-grid {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            }
-        }
-        @media (max-width: 500px) {
-            .multiplier {
-                font-size: 26px;
-            }
-            .multiplier.waiting {
-                font-size: 34px;
-            }
-            .rocket-img {
-                width: 60px;
-                height: 60px;
-            }
-            .xo-cell {
-                font-size: 28px;
-            }
-            .mine-cell {
-                font-size: 20px;
-            }
-            .roulette-wheel {
-                width: 180px;
-                height: 180px;
-            }
-            .roulette-center {
-                width: 40px;
-                height: 40px;
-                font-size: 14px;
-            }
-            .roulette-result .ball-emoji {
-                font-size: 28px;
-            }
-            .bag-grid {
-                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            }
-        }
+            --bg-color: #0c0d12;
+            --card-bg: #161822;
+            --border-color: #242838;
+            --accent-blue: #0088cc;
+            --accent-red: #e11d48;
+            --accent-green: #10b981;
+            --accent-gold: #f59e0b;
+            --text-color: #ffffff;
+            --text-sub: #8e95a5;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
+        body { background: var(--bg-color); color: var(--text-color); min-height: 100vh; overflow-x: hidden; padding-bottom: 70px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 38px; height: 38px; border-radius: 50%; background: #2a2e3d; border: 1px solid var(--border-color); overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .balance-box { display: flex; flex-direction: column; }
+        .balance-title { font-size: 10px; color: var(--text-sub); }
+        .balance-num { font-size: 15px; font-weight: 700; color: var(--accent-gold); display: flex; align-items: center; gap: 4px; }
+        .views-container { padding: 14px; }
+        .view { display: none; }
+        .view.active { display: block; }
+        .game-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-bottom: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .game-card.rocket-card { background: linear-gradient(135deg, #4c0519, #9f1239); border-color: #f43f5e; }
+        .game-card.mines-card { background: linear-gradient(135deg, #1e1b4b, #3730a3); border-color: #6366f1; }
+        .rocket-arena { background: #08090c; border: 1px solid var(--border-color); border-radius: 16px; padding: 12px; text-align: center; position: relative; }
+        .canvas-holder { width: 100%; height: 330px; position: relative; background: radial-gradient(circle, #1e1022 0%, #08090c 100%); border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+        canvas { width: 100%; height: 100%; display: block; }
+        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; color: white; background: var(--accent-blue); cursor: pointer; }
+        .btn-action.cashout { background: var(--accent-green); }
+        .inp-field { width: 100%; padding: 12px; background: #10121a; border: 1px solid var(--border-color); border-radius: 10px; color: white; text-align: center; margin-bottom: 10px; font-size: 14px; }
+        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+        .mine-tile { aspect-ratio: 1; background: #1a1d2b; border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+        nav { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-sub); cursor: pointer; }
+        .nav-btn.active { color: white; }
+        .dev-only { display:none !important; }
+        .dev-panel { background:linear-gradient(145deg,#17131f,#101118); border:1px solid #5b3aa8; border-radius:18px; padding:14px; margin-bottom:12px; }
+        .dev-title { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .dev-title h2 { font-size:18px; }
+        .dev-badge { font-size:10px; color:#c7b5ff; border:1px solid #5b3aa8; border-radius:999px; padding:5px 8px; }
+        .dev-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+        .dev-btn { border:1px solid #2b2e3b; background:#191c27; color:#fff; border-radius:12px; padding:13px 8px; font-size:12px; font-weight:800; cursor:pointer; }
+        .dev-btn:active { transform:scale(.98); }
+        .dev-section { margin-top:10px; padding-top:10px; border-top:1px solid #272a36; }
+        .dev-stat { display:flex; justify-content:space-between; background:#11131a; border-radius:10px; padding:10px; margin-top:6px; font-size:12px; }
     </style>
 </head>
 <body>
 
-    <div class="app">
+<header>
+    <div class="user-info">
+        <div class="avatar"><img id="u-img" src="https://via.placeholder.com/40" alt="user"></div>
+        <div>
+            <div id="u-name" style="font-size:12px; font-weight:bold;">اللاعب</div>
+            <div class="balance-title">الحساب التجريبي</div>
+        </div>
+    </div>
+    <div class="balance-box">
+        <span class="balance-title">الرصيد</span>
+        <span class="balance-num">💎 <span id="u-bal">100.00</span> GRAM</span>
+    </div>
+</header>
 
-        <!-- ===== الشريط العلوي ===== -->
-        <div class="hud">
-            <div class="hud-left">
-                <div class="hud-pill">
-                    <span class="icon">⭐</span>
-                    <span class="label">نقاط</span>
-                    <span class="value" id="scoreDisplay">0</span>
-                </div>
-                <div class="hud-pill">
-                    <span class="icon">₮</span>
-                    <span class="label">رصيد</span>
-                    <span class="value" id="coinsDisplay">0</span>
-                </div>
+<div class="views-container">
+    <div id="view-home" class="view active">
+        <div class="game-card rocket-card" onclick="openGame('rocket')">
+            <div>
+                <h2>🚀 ROCKET (+18)</h2>
+                <p style="font-size:11px; opacity:0.8;">طيران الصاروخ ومضاعفة الأرباح</p>
             </div>
-            <button class="hud-btn" id="bagToggleTop" style="display:flex;">
-                🎒 حقيبتي <span class="badge" id="bagBadge">0</span>
-            </button>
+            <span style="font-size:24px;">🔥</span>
         </div>
 
-        <!-- ===== الحقيبة ===== -->
-        <div class="bag-overlay" id="bagOverlay">
-            <div class="bag-panel">
-                <div class="bag-header">
-                    <h2><span style="font-size:26px;">🎒</span> حقيبتي</h2>
-                    <div class="bag-stats">
-                        <span id="bagCount">0</span> عنصر · القيمة: <strong id="bagTotal">0</strong> ₮
-                    </div>
-                    <button class="bag-close" id="bagClose">✕</button>
-                </div>
-                <div class="bag-grid" id="bagGrid">
-                    <div class="bag-empty">
-                        <span class="big-emoji">🎒</span>
-                        <p>حقيبتك فارغة!<br>اجمع العناصر من الألعاب</p>
-                    </div>
-                </div>
+        <div class="game-card mines-card" onclick="openGame('mines')">
+            <div>
+                <h2>💣 MINES</h2>
+                <p style="font-size:11px; opacity:0.8;">لعبة الألغام والجواهر 5x5</p>
             </div>
+            <span style="font-size:24px;">💎</span>
         </div>
-
-        <!-- ===== الشاشة الرئيسية ===== -->
-        <div id="view-home" class="view active">
-            <div class="game-card rocket-card" onclick="window.openGame('rocket')">
-                <div>
-                    <h2>🚀 ROCKET</h2>
-                    <p>طيران الصاروخ ومضاعفة الأرباح</p>
-                </div>
-                <div class="card-icon">🔥</div>
-            </div>
-            <div class="game-card mines-card" onclick="window.openGame('mines')">
-                <div>
-                    <h2>💎 MINES</h2>
-                    <p>7 ماسات · 18 لغماً · اربح بجمع 6 ماسات</p>
-                </div>
-                <div class="card-icon">⛏️</div>
-            </div>
-            <div class="game-card xo-card" onclick="window.openGame('xo')">
-                <div>
-                    <h2>❌⭕ XO</h2>
-                    <p>تحدَّ الذكاء الاصطناعي واربح النقود</p>
-                </div>
-                <div class="card-icon">🧠</div>
-            </div>
-            <div class="game-card box-card" onclick="window.openGame('box')">
-                <div>
-                    <h2>🎁 صندوق الكرات</h2>
-                    <p>عجلة روليت · 10 ₮ للفة</p>
-                </div>
-                <div class="card-icon">🎡</div>
-            </div>
-        </div>
-
-        <!-- ===== شاشة الصاروخ ===== -->
-        <div id="view-rocket" class="view">
-            <div class="game-title-bar">
-                <button class="back-btn" onclick="window.openGame('home')">← رجوع</button>
-                <span class="title">🚀 ROCKET</span>
-                <span style="width:60px;"></span>
-            </div>
-            <div class="balance-row">
-                <div class="balance-pill">
-                    <span style="font-size:18px;">₮</span>
-                    <span class="bal-value" id="u-bal-game">100.00</span>
-                    <span class="ton-label">TON</span>
-                </div>
-            </div>
-            <div class="game-wrapper">
-                <div class="game-area" id="gameArea">
-                    <div id="star-container"></div>
-                    <div class="flight-line"></div>
-                    <div class="multiplier waiting" id="multiplier">5</div>
-                    <div class="trail" id="trail"></div>
-                    <img id="rocket" class="rocket-img" alt="Rocket" src="/xox-play-fixed/rocket-xox.png" />
-                </div>
-            </div>
-            <div class="history-wrap"><div id="r-history" class="history"></div></div>
-            <div class="bet-box">
-                <label class="label">💰 مبلغ الرهان (TON)</label>
-                <div class="input-row">
-                    <input type="number" id="r-bet" class="bet-input" value="0.10" min="0.01" step="0.01" />
-                    <span class="ton-label"><span class="mini-icon">₮</span> TON</span>
-                </div>
-                <div class="quick-bets">
-                    <button data-amount="0.10" data-target="r-bet">0.10</button>
-                    <button data-amount="0.50" data-target="r-bet">0.50</button>
-                    <button data-amount="1.00" data-target="r-bet">1.00</button>
-                    <button data-amount="5.00" data-target="r-bet">5.00</button>
-                </div>
-                <button id="r-btn" class="main-btn">🚀 ابدأ الرهان</button>
-                <div class="status" id="r-status">انتظر بدء الجولة</div>
-                <div class="players-title"><span>👥 اللاعبون</span><span id="players-count">0</span></div>
-                <div id="r-players" class="players"><div class="empty-players">لا يوجد لاعبون بعد</div></div>
-            </div>
-        </div>
-
-        <!-- ===== شاشة XO ===== -->
-        <div id="view-xo" class="view">
-            <div class="game-title-bar">
-                <button class="back-btn" onclick="window.openGame('home')">← رجوع</button>
-                <span class="title">❌⭕ XO</span>
-                <span style="width:60px;"></span>
-            </div>
-            <div class="balance-row">
-                <div class="balance-pill">
-                    <span style="font-size:18px;">₮</span>
-                    <span class="bal-value" id="u-bal-xo">100.00</span>
-                    <span class="ton-label">TON</span>
-                </div>
-            </div>
-            <div class="bet-box" style="margin-bottom:12px;">
-                <label class="label">💰 مبلغ الرهان (TON)</label>
-                <div class="input-row">
-                    <input type="number" id="xo-bet" class="bet-input" value="0.10" min="0.01" step="0.01" />
-                    <span class="ton-label"><span class="mini-icon">₮</span> TON</span>
-                </div>
-                <div class="quick-bets">
-                    <button data-amount="0.10" data-target="xo-bet">0.10</button>
-                    <button data-amount="0.50" data-target="xo-bet">0.50</button>
-                    <button data-amount="1.00" data-target="xo-bet">1.00</button>
-                    <button data-amount="5.00" data-target="xo-bet">5.00</button>
-                </div>
-            </div>
-            <div class="xo-score">
-                <span>أنت (❌): <span class="x-score" id="xo-score-x">0</span></span>
-                <span>AI (⭕): <span class="o-score" id="xo-score-o">0</span></span>
-            </div>
-            <div class="xo-board" id="xo-board"></div>
-            <div class="xo-status" id="xo-status">اضغط "بدء اللعبة"</div>
-            <div class="xo-actions">
-                <button id="xo-start-btn">🔄 بدء اللعبة</button>
-                <button class="btn-reset" id="xo-reset-btn">🗑 إعادة ضبط النقاط</button>
-            </div>
-        </div>
-
-        <!-- ===== شاشة الألغام ===== -->
-        <div id="view-mines" class="view">
-            <div class="game-title-bar">
-                <button class="back-btn" onclick="window.openGame('home')">← رجوع</button>
-                <span class="title">💎 MINES</span>
-                <span style="width:60px;"></span>
-            </div>
-            <div class="balance-row">
-                <div class="balance-pill">
-                    <span style="font-size:18px;">₮</span>
-                    <span class="bal-value" id="u-bal-mines">100.00</span>
-                    <span class="ton-label">TON</span>
-                </div>
-            </div>
-            <div class="bet-box" style="margin-bottom:8px;">
-                <label class="label">💰 مبلغ الرهان (TON)</label>
-                <div class="input-row">
-                    <input type="number" id="mines-bet" class="bet-input" value="0.10" min="0.01" step="0.01" />
-                    <span class="ton-label"><span class="mini-icon">₮</span> TON</span>
-                </div>
-                <div class="quick-bets">
-                    <button data-amount="0.10" data-target="mines-bet">0.10</button>
-                    <button data-amount="0.50" data-target="mines-bet">0.50</button>
-                    <button data-amount="1.00" data-target="mines-bet">1.00</button>
-                    <button data-amount="5.00" data-target="mines-bet">5.00</button>
-                </div>
-                <button id="mines-btn" class="main-btn">💎 ابدأ الحفر</button>
-                <div class="status" id="mines-status">اضغط "ابدأ الحفر" لبدء اللعبة</div>
-            </div>
-            <div class="mines-progress">💎 الماسات: <span id="mines-diamonds">0</span> / 6 · 💣 الألغام: <span id="mines-mines">0</span></div>
-            <div class="mines-board" id="mines-board"></div>
-            <div style="text-align:center;margin-top:8px;font-size:13px;color:var(--muted);">
-                💎 7 ماسات · 💣 18 لغماً · اربح بجمع 6 ماسات · تخسر فوراً بأي لغم
-            </div>
-        </div>
-
-        <!-- ===== شاشة صندوق الكرات - روليت ===== -->
-        <div id="view-box" class="view">
-            <div class="game-title-bar">
-                <button class="back-btn" onclick="window.openGame('home')">← رجوع</button>
-                <span class="title">🎡 روليت الكرات</span>
-                <span style="width:60px;"></span>
-            </div>
-            <div class="balance-row">
-                <div class="balance-pill">
-                    <span style="font-size:18px;">₮</span>
-                    <span class="bal-value" id="u-bal-box">100.00</span>
-                    <span class="ton-label">TON</span>
-                </div>
-            </div>
-            <div class="bet-box" style="margin-bottom:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                    <span class="label" style="margin:0;">🎯 سعر اللفة: <span style="color:var(--gold);font-weight:900;">10 ₮</span></span>
-                    <span class="roulette-price" id="box-coins">رصيدك: 100 ₮</span>
-                </div>
-                <button id="box-btn" class="main-btn">🎡 لف العجلة (10 ₮)</button>
-                <div class="status" id="box-status">اضغط "لف العجلة" لبدء الروليت</div>
-            </div>
-            <div class="roulette-container">
-                <div class="roulette-wheel" id="roulette-wheel">
-                    <div class="roulette-pointer">▼</div>
-                    <div class="roulette-center" id="roulette-center">🎯</div>
-                </div>
-                <div class="roulette-result" id="roulette-result">انتظر...</div>
-                <div class="roulette-stats">
-                    <span>⚫ أسود: <span class="count" id="box-black-count">0</span></span>
-                    <span>⚪ أبيض: <span class="count" id="box-white-count">0</span></span>
-                    <span>🌈 نيون: <span class="count" id="box-neon-count">0</span></span>
-                    <span>💎 لفات: <span class="count" id="box-total-opens">0</span></span>
-                </div>
-                <div class="bag-under-roulette">
-                    <button class="hud-btn" id="bagToggleBottom" style="width:100%; justify-content:center;">
-                        🎒 حقيبتي <span class="badge" id="bagBadgeBottom">0</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- ===== الشريط السفلي ===== -->
-    <nav>
-        <button class="nav-btn active" onclick="window.openGame('home')"><span>🏠</span><span>الرئيسية</span></button>
-        <button class="nav-btn" onclick="alert('📊 الإحصائيات: سيتم عرضها قريباً')"><span>📊</span><span>الإحصائيات</span></button>
-    </nav>
+    <div id="view-rocket" class="view">
+        <button onclick="openGame('home')" style="background:none; border:none; color:white; margin-bottom:10px; cursor:pointer;">➔ العودة للرئيسية</button>
+        <div class="rocket-arena">
+            <div class="canvas-holder">
+                <canvas id="rCanvas"></canvas>
+            </div>
+            <div id="r-status" style="min-height:28px;padding:8px;color:#aeb4c0;font-size:13px;font-weight:bold">الجولة التجريبية تبدأ تلقائياً</div>
+            <input type="number" id="r-bet" class="inp-field" value="10" min="0.01" step="0.01" placeholder="قيمة الرهان التجريبي">
+            <button id="r-btn" class="btn-action" onclick="handleRocketAction()">وضع الرهان</button>
+            <div style="text-align:right;margin-top:10px;color:#8e95a5;font-size:12px">سجل BET</div>
+            <div id="r-history" style="display:flex;gap:7px;overflow-x:auto;padding:7px 0;scrollbar-width:none"></div>
+            <div style="text-align:right;margin-top:4px;color:#8e95a5;font-size:12px">اللاعبون</div>
+            <div id="r-players" style="background:#111319;border:1px solid #20232b;border-radius:12px;padding:7px"><div style="padding:12px;color:#626a78;font-size:13px">NO PLAYER</div></div>
+        </div>
+    </div>
 
-    <script>
-        // ================================================================
-        //  البيانات الأساسية
-        // ================================================================
-        const tg = window.Telegram?.WebApp;
-        let userData = { id: 123456, first_name: 'اللاعب', last_name: '', username: 'demo' };
-        if (tg && tg.initDataUnsafe?.user) { tg.expand();
-            userData = tg.initDataUnsafe.user; }
+    <div id="view-mines" class="view">
+        <button onclick="openGame('home')" style="background:none; border:none; color:white; margin-bottom:10px; cursor:pointer;">➔ العودة للرئيسية</button>
+        <h3>💣 حقل الألغام</h3>
+        <div class="mines-grid" id="mGrid"></div>
+    </div>
+</div>
 
-        let userBalance = 100;
-        const state = {
-            score: 0,
-            coins: 0,
-            inventory: [],
-            collectedIds: new Set(),
-            itemIdCounter: 0,
-        };
+    <div id="view-developer" class="view dev-only">
+        <div class="dev-panel">
+            <div class="dev-title"><h2>🔐 لوحة المطوّر</h2><span class="dev-badge">DEVELOPER</span></div>
+            <div class="dev-grid">
+                <button class="dev-btn" onclick="devAction('users')">👥 المستخدمين</button>
+                <button class="dev-btn" onclick="devAction('balances')">💰 الأرصدة</button>
+                <button class="dev-btn" onclick="devAction('games')">🎮 الألعاب</button>
+                <button class="dev-btn" onclick="devAction('rocket')">🚀 إعدادات Rocket</button>
+                <button class="dev-btn" onclick="devAction('mines')">💣 إعدادات Mines</button>
+                <button class="dev-btn" onclick="devAction('activity')">📝 سجل النشاط</button>
+                <button class="dev-btn" onclick="devAction('broadcast')">📢 إعلان</button>
+                <button class="dev-btn" onclick="devAction('security')">🔒 الصلاحيات</button>
+                <button class="dev-btn" onclick="devAction('settings')">⚙️ إعدادات البوت</button>
+                <button class="dev-btn" onclick="devAction('reload')">🔄 تحديث البيانات</button>
+            </div>
+            <div class="dev-section">
+                <div class="dev-stat"><span>Telegram ID</span><strong id="dev-id">-</strong></div>
+                <div class="dev-stat"><span>الرصيد الحالي</span><strong id="dev-bal">0.00</strong></div>
+                <div class="dev-stat"><span>حالة لوحة المطوّر</span><strong style="color:#4be08b">مفعّلة</strong></div>
+            </div>
+        </div>
+        <button onclick="openGame('home')" style="width:100%;background:none;border:1px solid #2b2e3b;color:white;padding:12px;border-radius:12px;">➔ العودة للرئيسية</button>
+    </div>
 
-        const SEGMENT_CONFIG = [
-            { emoji: '⚫', label: 'أسود', price: 1000, category: 'black' },
-            { emoji: '⚫', label: 'أسود', price: 1000, category: 'black' },
-            { emoji: '⚪', label: 'أبيض', price: 1000, category: 'white' },
-            { emoji: '⚪', label: 'أبيض', price: 1000, category: 'white' },
-            { emoji: '🔴', label: 'أحمر', price: 5, category: 'neon' },
-            { emoji: '🔴', label: 'أحمر', price: 5, category: 'neon' },
-            { emoji: '🔵', label: 'أزرق', price: 5, category: 'neon' },
-            { emoji: '🔵', label: 'أزرق', price: 5, category: 'neon' },
-            { emoji: '🟢', label: 'أخضر', price: 5, category: 'neon' },
-            { emoji: '🟢', label: 'أخضر', price: 5, category: 'neon' },
-            { emoji: '🟡', label: 'أصفر', price: 5, category: 'neon' },
-            { emoji: '🟡', label: 'أصفر', price: 5, category: 'neon' },
-            { emoji: '🟣', label: 'بنفسجي', price: 5, category: 'neon' },
-            { emoji: '🟣', label: 'بنفسجي', price: 5, category: 'neon' },
-            { emoji: '🔴', label: 'أحمر', price: 5, category: 'neon' },
-            { emoji: '🔵', label: 'أزرق', price: 5, category: 'neon' },
-            { emoji: '🟢', label: 'أخضر', price: 5, category: 'neon' },
-            { emoji: '🟠', label: 'برتقالي', price: 25, category: 'extra' },
-            { emoji: '💗', label: 'وردي', price: 25, category: 'extra' },
-            { emoji: '💙', label: 'أزرق فاتح', price: 25, category: 'extra' },
-        ];
+<nav>
+    <div class="nav-btn active" onclick="openGame('home')">
+        <span style="font-size:18px;">🏠</span>
+        <span>الرئيسية</span>
+    </div>
+    <div class="nav-btn" onclick="alert('الإحصائيات محفوظة في السيرفر مع كل جولة')">
+        <span style="font-size:18px;">📊</span>
+        <span>الإحصائيات</span>
+    </div>
+    <div id="dev-nav" class="nav-btn dev-only" onclick="openDeveloper()">
+        <span style="font-size:18px;">🔐</span>
+        <span>المطور</span>
+    </div>
+</nav>
 
-        // ================================================================
-        //  مراجع DOM
-        // ================================================================
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const coinsDisplay = document.getElementById('coinsDisplay');
-        const bagBadge = document.getElementById('bagBadge');
-        const bagBadgeBottom = document.getElementById('bagBadgeBottom');
-        const bagOverlay = document.getElementById('bagOverlay');
-        const bagGrid = document.getElementById('bagGrid');
-        const bagCount = document.getElementById('bagCount');
-        const bagTotal = document.getElementById('bagTotal');
-        const bagClose = document.getElementById('bagClose');
-        const bagToggleTop = document.getElementById('bagToggleTop');
-        const bagToggleBottom = document.getElementById('bagToggleBottom');
+<script>
+    const tg = window.Telegram?.WebApp;
+    const DEVELOPER_ID = '7795559285';
 
-        // ================================================================
-        //  دوال الحقيبة
-        // ================================================================
-        function updateBagUI() {
-            const items = state.inventory;
-            bagCount.textContent = items.length;
-            const totalValue = items.reduce((sum, i) => sum + i.price, 0);
-            bagTotal.textContent = totalValue;
+    function isDeveloper(){ return String(userData?.id ?? '') === DEVELOPER_ID; }
 
-            if (items.length === 0) {
-                bagGrid.innerHTML = `
-                    <div class="bag-empty">
-                        <span class="big-emoji">🎒</span>
-                        <p>حقيبتك فارغة!<br>اجمع العناصر من الألعاب</p>
-                    </div>
-                `;
-            } else {
-                bagGrid.innerHTML = items.map(item => `
-                    <div class="bag-item" data-id="${item.id}">
-                        <div class="item-emoji">${item.emoji}</div>
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">${item.price} ₮</div>
-                        ${item.kept ? '<div class="kept-badge">🔒 محتفظ به</div>' : ''}
-                        <div class="item-actions">
-                            <button class="btn-sell" data-action="sell" data-id="${item.id}" ${item.kept ? 'disabled' : ''}>
-                                💰 بيع
-                            </button>
-                            <button class="btn-keep" data-action="keep" data-id="${item.id}">
-                                ${item.kept ? '🔓 إلغاء' : '🔒 حفظ'}
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
+    function setupDeveloperUI(){
+        const allowed=isDeveloper();
+        document.getElementById('dev-nav')?.classList.toggle('dev-only', !allowed);
+        document.getElementById('view-developer')?.classList.toggle('dev-only', !allowed);
+        if(allowed){
+            document.getElementById('dev-id').innerText=DEVELOPER_ID;
+            document.getElementById('dev-bal').innerText=Number(userBalance||0).toFixed(2);
+        }
+    }
 
-                bagGrid.querySelectorAll('[data-action="sell"]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const id = parseInt(btn.dataset.id);
-                        sellItem(id);
-                    });
-                });
-                bagGrid.querySelectorAll('[data-action="keep"]').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const id = parseInt(btn.dataset.id);
-                        keepItem(id);
-                    });
-                });
+    function openDeveloper(){
+        if(!isDeveloper()) return alert('غير مصرح');
+        openGame('developer');
+        document.getElementById('dev-id').innerText=DEVELOPER_ID;
+        document.getElementById('dev-bal').innerText=Number(userBalance||0).toFixed(2);
+    }
+
+    function devAction(type){
+        if(!isDeveloper()) return alert('غير مصرح');
+        const labels={users:'إدارة المستخدمين',balances:'إدارة الأرصدة',games:'إعدادات الألعاب',rocket:'إعدادات Rocket',mines:'إعدادات Mines',activity:'سجل النشاط',broadcast:'الإعلانات',security:'الصلاحيات',settings:'إعدادات البوت',reload:'تحديث البيانات'};
+        alert('تم فتح: '+labels[type]+'\n\nهذه الواجهة جاهزة، والوظائف الفعلية نربطها بالسيرفر بالخطوة التالية.');
+    }
+
+    let userData = {
+        id: 123456,
+        first_name: 'لاعب',
+        last_name: 'تجريبي',
+        username: 'demo'
+    };
+
+    if (tg && tg.initDataUnsafe?.user) {
+        tg.expand();
+        userData = tg.initDataUnsafe.user;
+    }
+
+    let userBalance = 100.00;
+    setupDeveloperUI();
+
+    async function initUser() {
+        try {
+            const res = await fetch('/api/user/init', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+
+            const data = await res.json();
+
+            if (data.success) {
+                userBalance = Number(data.user.balance) || 0;
+                document.getElementById('u-name').innerText = data.user.name || 'اللاعب';
+                document.getElementById('u-bal').innerText = userBalance.toFixed(2);
+                setupDeveloperUI();
+
+                if (data.user.photo) {
+                    document.getElementById('u-img').src = data.user.photo;
+                }
             }
+        } catch (error) {
+            console.error('User init error:', error);
+        }
+    }
 
-            const count = items.length;
-            bagBadge.textContent = count;
-            bagBadgeBottom.textContent = count;
+    initUser();
+
+    function openGame(g) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+        const view = document.getElementById(`view-${g}`);
+
+        if (!view) {
+            console.error(`View not found: view-${g}`);
+            return;
         }
 
-        function addToInventory(emoji, name, price) {
-            const item = {
-                id: state.itemIdCounter++,
-                emoji,
-                name,
-                price,
-                kept: false,
+        view.classList.add('active');
+
+        if (g === 'rocket') openRocketGame();
+        if (g === 'mines') initMines();
+    }
+
+    let canvas = document.getElementById('rCanvas');
+    let ctx = canvas.getContext('2d');
+    let gameState = 'WAITING';
+    let mult = 1.00;
+    let crashMult = 1.00;
+    let myBet = 0;
+    let cashedOut = false;
+    let countdown = 5;
+    let countdownTimer = null;
+    let animationFrame = null;
+    let history = ['1.07x','2.88x','1.70x','1.87x','1.08x'];
+    const rocketImage = new Image();
+    rocketImage.src = 'rocket-static.png';
+
+    function cssW(){ return canvas.width / devicePixelRatio; }
+    function cssH(){ return canvas.height / devicePixelRatio; }
+
+    function initRocket(){
+        const box = canvas.parentElement;
+        canvas.width = box.clientWidth * devicePixelRatio;
+        canvas.height = box.clientHeight * devicePixelRatio;
+        ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+        renderCanvas();
+        renderHistory();
+    }
+
+    function drawStars(){
+        const w=cssW(), h=cssH();
+        ctx.fillStyle='#fff';
+        [[.18,.13],[.76,.28],[.88,.48],[.13,.72],[.78,.83],[.42,.40],[.59,.17]].forEach(([x,y])=>{
+            ctx.globalAlpha=.7; ctx.beginPath(); ctx.arc(w*x,h*y,2.2,0,Math.PI*2); ctx.fill();
+        });
+        ctx.globalAlpha=1;
+    }
+
+    function drawRocket(x,y,rotation,scale){
+        ctx.save();
+        ctx.translate(x,y);
+        ctx.rotate(rotation);
+        ctx.scale(scale,scale);
+        if(rocketImage.complete && rocketImage.naturalWidth){
+            ctx.drawImage(rocketImage,-48,-48,96,96);
+        } else {
+            ctx.fillStyle='#e11d48'; ctx.beginPath(); ctx.ellipse(0,0,38,21,-.45,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-3,-3,10,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle='#111'; ctx.font='bold 8px Arial'; ctx.textAlign='center'; ctx.fillText('18+',-3,0);
+        }
+        ctx.restore();
+    }
+
+    function renderCanvas(){
+        const w=cssW(), h=cssH();
+        ctx.clearRect(0,0,w,h); drawStars();
+        if(gameState==='WAITING' || gameState==='COUNTDOWN'){
+            ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.font='900 62px Arial';
+            ctx.fillText(gameState==='COUNTDOWN' ? countdown : '', w/2, h/2-12);
+            ctx.font='800 15px Arial'; ctx.fillStyle='#aab1bd';
+            ctx.fillText(gameState==='COUNTDOWN'?'استعد...':'انتظار الجولة',w/2,h/2+26);
+            drawRocket(w/2,h/2+85,Math.sin(performance.now()/500)*.08,.55);
+            return;
+        }
+        if(gameState==='FLYING'){
+            const progress=Math.min(1,(mult-1)/Math.max(.01,crashMult-1));
+            const x=38+progress*(w-82), y=h-45-progress*(h-105);
+            ctx.beginPath(); ctx.moveTo(15,h-18); ctx.quadraticCurveTo(w*.35,h*.95,x,y);
+            ctx.strokeStyle='rgba(239,68,68,.75)'; ctx.lineWidth=4; ctx.stroke();
+            ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.font='900 54px Arial'; ctx.fillText(mult.toFixed(2)+'x',w/2,58);
+            drawRocket(x,y,-.18+Math.sin(performance.now()/180)*.12,.78+Math.min(.25,progress*.25));
+            return;
+        }
+        if(gameState==='CRASHED'){
+            ctx.fillStyle='#ff5a66'; ctx.textAlign='center'; ctx.font='900 42px Arial'; ctx.fillText(mult.toFixed(2)+'x',w/2,60);
+            ctx.font='900 23px Arial'; ctx.fillText('💥 انفجر الصاروخ',w/2,h/2+12);
+        }
+    }
+
+    function generateCrashPoint(){
+        const r=Math.random();
+        if(r<.50) return +(1.01+Math.random()*.99).toFixed(2);
+        if(r<.82) return +(2+Math.random()*2).toFixed(2);
+        if(r<.95) return +(4+Math.random()*6).toFixed(2);
+        return +(10+Math.random()*40).toFixed(2);
+    }
+
+    function historyClass(x){
+        if(x<=1.10) return 'background:#3d2025;border:1px solid #b8434f;color:#ff6973;';
+        if(x<2) return 'background:#183426;border:1px solid #1fa968;color:#4be08b;';
+        if(x<=4) return 'background:#2d2050;border:1px solid #7c4ddd;color:#b895ff;';
+        return 'background:#493714;border:1px solid #d99a17;color:#ffd76b;';
+    }
+    function renderHistory(){
+        const el=document.getElementById('r-history');
+        el.innerHTML=history.map(x=>'<div style="flex:0 0 auto;padding:8px 12px;border-radius:12px;font-weight:900;font-size:14px;'+historyClass(parseFloat(x))+'">'+x+'</div>').join('');
+    }
+    function addHistory(x){ history.unshift(x.toFixed(2)+'x'); history=history.slice(0,10); renderHistory(); }
+
+    function renderPlayers(win){
+        const el=document.getElementById('r-players');
+        if(myBet<=0){ el.innerHTML='<div style="padding:12px;color:#626a78;font-size:13px">NO PLAYER</div>'; return; }
+        const name=((userData.first_name||'اللاعب')+' '+(userData.last_name||'')).trim();
+        const photo=userData.photo_url||'https://via.placeholder.com/40';
+        const meta=win!=null ? 'سحب '+Number(win).toFixed(2)+' GRAM' : 'رهان '+myBet.toFixed(2)+' GRAM';
+        el.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:7px 0"><img src="'+photo+'" onerror="this.style.display=\'none\'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#2a2e3d"><div style="flex:1;text-align:right;font-size:12px;font-weight:800">'+name+'</div><div style="font-size:11px;color:#aab0bb">'+meta+'</div></div>';
+    }
+
+    function startAutoRound(){
+        clearInterval(countdownTimer); cancelAnimationFrame(animationFrame);
+        gameState='COUNTDOWN'; countdown=5; mult=1; myBet=0; cashedOut=false;
+        document.getElementById('r-btn').disabled=false;
+        document.getElementById('r-btn').className='btn-action';
+        document.getElementById('r-btn').innerText='وضع الرهان';
+        document.getElementById('r-status').innerText='الجولة تبدأ خلال 5 ثوانٍ — يمكنك وضع رهان تجريبي';
+        renderPlayers(); renderCanvas();
+        countdownTimer=setInterval(()=>{
+            countdown--;
+            document.getElementById('r-status').innerText=countdown>0?'الجولة تبدأ خلال '+countdown+' ثوانٍ':'انطلاق 🚀';
+            renderCanvas();
+            if(countdown<=0){ clearInterval(countdownTimer); setTimeout(beginFlight,250); }
+        },1000);
+    }
+
+    function beginFlight(){
+        gameState='FLYING'; mult=1; crashMult=generateCrashPoint();
+        document.getElementById('r-status').innerText='الجولة مستمرة — اسحب قبل الانفجار';
+        const start=performance.now();
+        function tick(now){
+            if(gameState!=='FLYING') return;
+            const e=(now-start)/1000;
+            mult=+(1+0.13*e+0.045*e*e+0.0045*e*e*e).toFixed(2);
+            if(!cashedOut && mult>=crashMult){ mult=crashMult; crashRound(); return; }
+            document.getElementById('r-btn').innerText='سحب '+mult.toFixed(2)+'x';
+            document.getElementById('r-btn').className='btn-action cashout';
+            renderCanvas(); animationFrame=requestAnimationFrame(tick);
+        }
+        animationFrame=requestAnimationFrame(tick);
+    }
+
+    function handleRocketAction(){
+        if(gameState==='COUNTDOWN'){
+            const amount=Number(document.getElementById('r-bet').value);
+            if(!amount||amount<=0)return alert('أدخل مبلغاً تجريبياً صحيحاً');
+            if(amount>userBalance)return alert('الرصيد التجريبي غير كافٍ');
+            myBet=amount;
+            document.getElementById('r-btn').innerText='تم تسجيل الرهان التجريبي';
+            document.getElementById('r-btn').disabled=true;
+            renderPlayers();
+            return;
+        }
+        if(gameState==='FLYING'&&!cashedOut) cashOut();
+    }
+
+    function cashOut(){
+        if(myBet<=0){ document.getElementById('r-status').innerText='لم يتم وضع رهان تجريبي'; return; }
+        cashedOut=true;
+        const win=+(myBet*mult).toFixed(2);
+        userBalance=+(userBalance-myBet+win).toFixed(2);
+        document.getElementById('u-bal').innerText=userBalance.toFixed(2);
+        document.getElementById('r-status').innerText='✅ تم السحب التجريبي: '+win.toFixed(2)+' GRAM عند '+mult.toFixed(2)+'x';
+        document.getElementById('r-btn').disabled=true;
+        renderPlayers(win);
+    }
+
+    function crashRound(){
+        gameState='CRASHED'; cancelAnimationFrame(animationFrame);
+        document.getElementById('r-status').innerText='💥 انفجر الصاروخ عند '+mult.toFixed(2)+'x';
+        document.getElementById('r-btn').disabled=true;
+        addHistory(mult); renderCanvas();
+        const area=document.querySelector('.canvas-holder'), boom=document.createElement('div');
+        boom.textContent='💥'; boom.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;pointer-events:none;z-index:20;animation:boom .8s ease-out both';
+        area.appendChild(boom); setTimeout(()=>boom.remove(),850);
+        setTimeout(startAutoRound,1300);
+    }
+
+    if(!document.getElementById('boom-style')){
+        const st=document.createElement('style'); st.id='boom-style'; st.textContent='@keyframes boom{0%{transform:scale(.2) rotate(-15deg);opacity:0}35%{transform:scale(1.35) rotate(8deg);opacity:1}70%{transform:scale(1) rotate(-3deg);opacity:1}100%{transform:scale(1.7) rotate(5deg);opacity:0}}'; document.head.appendChild(st);
+    }
+
+    function openRocketGame(){ initRocket(); if(gameState==='WAITING') setTimeout(startAutoRound,400); }
+
+    function initMines() {
+        const grid = document.getElementById('mGrid');
+        grid.innerHTML = '';
+
+        for (let i = 0; i < 25; i++) {
+            const tile = document.createElement('div');
+            tile.className = 'mine-tile';
+            tile.innerText = '❓';
+
+            tile.onclick = () => {
+                if (tile.innerText !== '❓') return;
+                tile.innerText = Math.random() > 0.25 ? '💎' : '💣';
             };
-            state.inventory.push(item);
-            state.collectedIds.add(emoji + name);
-            updateBagUI();
-            updateHUD();
+
+            grid.appendChild(tile);
         }
-
-        function sellItem(id) {
-            const idx = state.inventory.findIndex(item => item.id === id);
-            if (idx === -1) return;
-            const item = state.inventory[idx];
-            if (item.kept) return;
-            userBalance = +(userBalance + item.price).toFixed(2);
-            state.coins += item.price;
-            state.inventory.splice(idx, 1);
-            const stillHas = state.inventory.some(i => i.emoji === item.emoji && i.name === item.name);
-            if (!stillHas) {
-                state.collectedIds.delete(item.emoji + item.name);
-            }
-            updateBagUI();
-            updateHUD();
-            document.querySelectorAll('#u-bal, #u-bal-game, #u-bal-xo, #u-bal-mines, #u-bal-box').forEach(el =>
-                el.textContent = userBalance.toFixed(2));
-        }
-
-        function keepItem(id) {
-            const item = state.inventory.find(i => i.id === id);
-            if (!item) return;
-            item.kept = !item.kept;
-            updateBagUI();
-        }
-
-        function updateHUD() {
-            scoreDisplay.textContent = state.score;
-            coinsDisplay.textContent = state.coins;
-            const count = state.inventory.length;
-            bagBadge.textContent = count;
-            bagBadgeBottom.textContent = count;
-        }
-
-        function toggleBag() {
-            const isOpen = bagOverlay.classList.contains('open');
-            if (isOpen) {
-                bagOverlay.classList.remove('open');
-            } else {
-                bagOverlay.classList.add('open');
-                updateBagUI();
-            }
-        }
-
-        bagToggleTop.addEventListener('click', toggleBag);
-        bagToggleBottom.addEventListener('click', toggleBag);
-        bagClose.addEventListener('click', toggleBag);
-        bagOverlay.addEventListener('click', (e) => {
-            if (e.target === bagOverlay) toggleBag();
-        });
-
-        // ================================================================
-        //  دوال التنقل بين الشاشات
-        // ================================================================
-        window.openGame = function(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            const el = document.getElementById('view-' + id);
-            if (!el) return;
-            el.classList.add('active');
-
-            if (id === 'box') {
-                bagToggleTop.style.display = 'none';
-            } else {
-                bagToggleTop.style.display = 'flex';
-            }
-
-            if (id === 'rocket') {
-                document.querySelectorAll('#u-bal, #u-bal-game').forEach(e => e.textContent = userBalance.toFixed(2));
-                renderHistory();
-                if (gameState === 'WAITING') setTimeout(startAutoRound, 400);
-            }
-            if (id === 'xo') {
-                document.getElementById('u-bal-xo').textContent = userBalance.toFixed(2);
-                renderXOBoard();
-            }
-            if (id === 'mines') {
-                document.getElementById('u-bal-mines').textContent = userBalance.toFixed(2);
-                renderMinesBoard();
-            }
-            if (id === 'box') {
-                document.getElementById('u-bal-box').textContent = userBalance.toFixed(2);
-                document.getElementById('box-coins').textContent = `رصيدك: ${userBalance} ₮`;
-                updateRouletteStats();
-                buildRouletteWheel();
-            }
-        };
-
-        document.querySelectorAll('.quick-bets button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = document.getElementById(btn.dataset.target);
-                if (target) { const v = parseFloat(btn.dataset.amount); if (v > 0) target.value = v.toFixed(2); }
-            });
-        });
-
-        // ================================================================
-        //  لعبة الصاروخ (ROCKET)
-        // ================================================================
-        let gameState = 'WAITING';
-        let currentMultiplier = 1,
-            crashMultiplier = 1,
-            playerBet = 0,
-            hasCashedOut = false,
-            cashOutMultiplier = 1,
-            cashOutWin = 0;
-        let countdown = 5,
-            countdownTimer = null,
-            animationFrameId = null,
-            flightStartTime = 0,
-            rocketMoved = false;
-        let history = ['1.07x', '13.20x', '1.70x', '2.20x', '2.00x'];
-
-        const rocketImg = document.getElementById('rocket');
-        const multiplierEl = document.getElementById('multiplier');
-        const trailEl = document.getElementById('trail');
-        const gameArea = document.getElementById('gameArea');
-        const starContainer = document.getElementById('star-container');
-        const actionBtn = document.getElementById('r-btn');
-        const statusMsg = document.getElementById('r-status');
-        const betInput = document.getElementById('r-bet');
-        const historyEl = document.getElementById('r-history');
-        const playersList = document.getElementById('r-players');
-        const playersCount = document.getElementById('players-count');
-
-        let stars = [];
-
-        function initStars() {
-            starContainer.innerHTML = '';
-            stars = [];
-            for (let i = 0; i < 150; i++) {
-                const s = document.createElement('div');
-                s.className = 'star';
-                const size = Math.random() * 3 + 0.6;
-                s.style.width = size + 'px';
-                s.style.height = size + 'px';
-                const l = Math.random() * 100,
-                    t = Math.random() * 100;
-                s.style.left = l + '%';
-                s.style.top = t + '%';
-                s.style.opacity = Math.random() * 0.5 + 0.2;
-                starContainer.appendChild(s);
-                stars.push({ el: s, x: l, y: t, speed: 0.15 + Math.random() * 0.35 });
-            }
-        }
-        initStars();
-
-        function updateStars() {
-            if (gameState === 'FLYING') {
-                for (const s of stars) {
-                    s.x += s.speed * 0.7;
-                    if (s.x > 105) { s.x = -5;
-                        s.y = Math.random() * 100;
-                        s.speed = 0.15 + Math.random() * 0.35; }
-                    s.el.style.left = s.x + '%';
-                    s.el.style.top = s.y + '%';
-                }
-            }
-        }
-
-        function rng() { try { const a = new Uint32Array(1);
-                crypto.getRandomValues(a); return a[0] / 4294967296; } catch (e) { return Math.random(); } }
-
-        function generateCrashPoint() { return rng() < 0.45 ? 2 + rng() * 4 : 1 + rng() * 1; }
-
-        function colorForMultiplier(x) {
-            x = Number(x);
-            let h;
-            if (x <= 1.19) h = 355;
-            else if (x < 2) h = 355 + (x - 1.19) / (2 - 1.19) * (205 - 355);
-            else if (x < 5) h = 205 + (x - 2) / 3 * (250 - 205);
-            else if (x < 9) h = 250 + (x - 5) / 4 * (285 - 250);
-            else h = 42;
-            return `hsl(${h}, 85%, ${x < 2 ? 64 : 65}%)`;
-        }
-
-        function historyStyle(m) { const c = colorForMultiplier(m); return `background:${c}18;border-color:${c};color:${c};box-shadow:0 0 16px ${c}22`; }
-
-        function renderHistory() {
-            historyEl.innerHTML = history.slice(0, 14).map(v => {
-                const n = parseFloat(v);
-                return `<div class="history-item ${n > 2 ? 'win' : 'lose'}" style="${historyStyle(n)}">${v}</div>`;
-            }).join('');
-        }
-
-        function addHistory(v) { history.unshift(Number(v).toFixed(2) + 'x');
-            history = history.slice(0, 14);
-            renderHistory(); }
-
-        function renderPlayers() {
-            if (playerBet <= 0) { playersList.innerHTML = '<div class="empty-players">لا يوجد لاعبون بعد</div>';
-                playersCount.textContent = '0'; return; }
-            const name = ((userData.first_name || 'اللاعب') + ' ' + (userData.last_name || '')).trim();
-            const shown = hasCashedOut ? cashOutMultiplier : Math.max(1, currentMultiplier);
-            const result = hasCashedOut ? cashOutWin : playerBet * shown;
-            const photo = userData.photo_url || '';
-            playersList.innerHTML = `
-                <div class="player-row">
-                    ${photo ? `<img class="player-avatar" src="${photo}" onerror="this.style.display='none'">` : `<div class="player-avatar"></div>`}
-                    <div class="player-info">
-                        <div class="player-name">${escapeHtml(name)}</div>
-                        <div class="player-bet">◆ ${playerBet.toFixed(2)} × ${shown.toFixed(2)}</div>
-                    </div>
-                    <div class="player-result">◆ ${result.toFixed(2)}</div>
-                </div>
-            `;
-            playersCount.textContent = '1';
-        }
-
-        function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
-                "'": '&#39;' } [c])); }
-
-        function drawScene() {
-            if (gameState === 'WAITING' || gameState === 'COUNTDOWN') {
-                multiplierEl.className = 'multiplier waiting';
-                multiplierEl.textContent = countdown;
-                rocketImg.className = 'rocket-img';
-                rocketImg.style.display = 'block';
-                rocketImg.style.left = '10%';
-                rocketImg.style.top = '50%';
-                rocketImg.style.transform = 'translate(-50%, -50%) rotate(-15deg) scale(0.7)';
-                trailEl.className = 'trail';
-                trailEl.style.left = '10%';
-                trailEl.style.top = '50%';
-                trailEl.style.transform = 'translateY(-50%)';
-                trailEl.style.opacity = '0';
-                for (const s of stars) { s.x = Math.random() * 100;
-                    s.y = Math.random() * 100;
-                    s.el.style.left = s.x + '%';
-                    s.el.style.top = s.y + '%'; }
-                rocketMoved = false;
-                return;
-            }
-            if (gameState === 'FLYING') {
-                const shown = hasCashedOut ? cashOutMultiplier : currentMultiplier;
-                multiplierEl.className = 'multiplier';
-                multiplierEl.style.color = '#fff';
-                multiplierEl.textContent = shown.toFixed(2) + 'x';
-                const elapsed = (performance.now() - flightStartTime) / 1000;
-                if (!rocketMoved && elapsed < 1.8) {
-                    rocketImg.className = 'rocket-img moving';
-                    rocketImg.style.display = 'block';
-                    rocketImg.style.left = '50%';
-                    rocketImg.style.top = '50%';
-                    rocketImg.style.transform = 'translate(-50%, -50%) rotate(0deg) scale(0.85)';
-                    trailEl.className = 'trail active';
-                    trailEl.style.left = '50%';
-                    trailEl.style.top = '50%';
-                    trailEl.style.transform = 'translate(-50%, -50%)';
-                    trailEl.style.opacity = '0.7';
-                    if (elapsed >= 1.7) { rocketMoved = true;
-                        rocketImg.className = 'rocket-img flying';
-                        trailEl.className = 'trail centered'; }
-                } else if (rocketMoved) {
-                    const t = (performance.now() - flightStartTime) / 1000;
-                    const angle = -5 + Math.sin(t * 2.8) * 4;
-                    const scale = 0.85 + Math.sin(t * 2.0) * 0.04;
-                    rocketImg.className = 'rocket-img flying';
-                    rocketImg.style.display = 'block';
-                    rocketImg.style.left = '50%';
-                    rocketImg.style.top = '50%';
-                    rocketImg.style.transform = `translate(-50%, -50%) rotate(${angle}deg) scale(${scale})`;
-                    rocketImg.style.filter = `drop-shadow(0 0 ${20+10*Math.sin(t*3)}px rgba(255,70,70,0.4))`;
-                    trailEl.className = 'trail centered';
-                    trailEl.style.opacity = 0.7 + 0.2 * Math.sin(t * 2.2);
-                }
-                updateStars();
-                return;
-            }
-            multiplierEl.className = 'multiplier crashed';
-            multiplierEl.style.color = '#ff4d5e';
-            multiplierEl.textContent = crashMultiplier.toFixed(2) + 'x';
-            rocketImg.className = 'rocket-img';
-            rocketImg.style.display = 'none';
-            trailEl.className = 'trail';
-            trailEl.style.opacity = '0';
-        }
-
-        function startAutoRound() {
-            clearInterval(countdownTimer);
-            cancelAnimationFrame(animationFrameId);
-            gameState = 'COUNTDOWN';
-            countdown = 5;
-            currentMultiplier = 1;
-            playerBet = 0;
-            hasCashedOut = false;
-            cashOutMultiplier = 1;
-            cashOutWin = 0;
-            rocketMoved = false;
-            actionBtn.disabled = false;
-            actionBtn.className = 'main-btn';
-            actionBtn.textContent = '🚀 ابدأ الرهان';
-            statusMsg.textContent = 'الجولة تبدأ خلال 5 ثوانٍ';
-            statusMsg.className = 'status info';
-            renderPlayers();
-            drawScene();
-            countdownTimer = setInterval(() => {
-                countdown--;
-                if (countdown > 0) statusMsg.textContent = `⏳ الجولة تبدأ خلال ${countdown} ثوانٍ`;
-                else statusMsg.textContent = '🚀 انطلاق!';
-                drawScene();
-                if (countdown <= 0) { clearInterval(countdownTimer);
-                    setTimeout(beginFlight, 250); }
-            }, 1000);
-        }
-
-        function beginFlight() {
-            gameState = 'FLYING';
-            currentMultiplier = 1;
-            crashMultiplier = generateCrashPoint();
-            statusMsg.textContent = '📈 الجولة مستمرة — اسحب قبل الانفجار!';
-            statusMsg.className = 'status info';
-            flightStartTime = performance.now();
-            rocketMoved = false;
-            const start = flightStartTime;
-
-            function tick(now) {
-                if (gameState !== 'FLYING') return;
-                const elapsed = (now - start) / 1000;
-                currentMultiplier = +(1 + 0.015 * elapsed + 0.005 * elapsed * elapsed + 0.0003 * elapsed * elapsed * elapsed)
-                    .toFixed(3);
-                if (currentMultiplier >= crashMultiplier) { currentMultiplier = crashMultiplier;
-                    crashRound(); return; }
-                if (playerBet > 0 && !hasCashedOut) {
-                    actionBtn.textContent = `💰 اسحب ${currentMultiplier.toFixed(2)}x`;
-                    actionBtn.className = 'main-btn cashout';
-                    renderPlayers();
-                }
-                drawScene();
-                animationFrameId = requestAnimationFrame(tick);
-            }
-            animationFrameId = requestAnimationFrame(tick);
-        }
-
-        function handleRocketAction() {
-            if (gameState === 'COUNTDOWN') {
-                const amount = Number(betInput.value);
-                if (!amount || amount <= 0) { statusMsg.textContent = '❌ أدخل مبلغ صحيح';
-                    statusMsg.className = 'status lose'; return; }
-                if (amount > userBalance) { statusMsg.textContent = '❌ الرصيد غير كافٍ';
-                    statusMsg.className = 'status lose'; return; }
-                playerBet = amount;
-                cashOutMultiplier = 1;
-                cashOutWin = 0;
-                userBalance = +(userBalance - amount).toFixed(2);
-                document.querySelectorAll('#u-bal, #u-bal-game').forEach(e => e.textContent = userBalance.toFixed(2));
-                actionBtn.textContent = '💰 اسحب 1.00x';
-                actionBtn.className = 'main-btn cashout';
-                actionBtn.disabled = false;
-                statusMsg.textContent = '✅ تم تسجيل الرهان — اسحب أثناء الصعود';
-                statusMsg.className = 'status win';
-                renderPlayers();
-                return;
-            }
-            if (gameState === 'FLYING' && playerBet > 0 && !hasCashedOut) performCashOut();
-        }
-
-        function performCashOut() {
-            if (gameState !== 'FLYING' || playerBet <= 0 || hasCashedOut) return;
-            hasCashedOut = true;
-            cashOutMultiplier = +currentMultiplier.toFixed(2);
-            const win = +(playerBet * cashOutMultiplier).toFixed(2);
-            cashOutWin = win;
-            userBalance = +(userBalance + win).toFixed(2);
-            document.querySelectorAll('#u-bal, #u-bal-game').forEach(e => e.textContent = userBalance.toFixed(2));
-            statusMsg.textContent = `✅ سحبت ${win.toFixed(2)} TON عند ${cashOutMultiplier.toFixed(2)}x`;
-            statusMsg.className = 'status win';
-            actionBtn.textContent = '✅ تم السحب';
-            actionBtn.disabled = true;
-            renderPlayers();
-        }
-
-        function crashRound() {
-            gameState = 'CRASHED';
-            cancelAnimationFrame(animationFrameId);
-            currentMultiplier = crashMultiplier;
-            statusMsg.textContent = `💥 انفجر عند ${crashMultiplier.toFixed(2)}x`;
-            statusMsg.className = 'status lose';
-            actionBtn.disabled = true;
-            addHistory(crashMultiplier);
-            drawScene();
-            const boom = document.createElement('div');
-            boom.className = 'crash-boom';
-            boom.textContent = '💥';
-            gameArea.appendChild(boom);
-            setTimeout(() => boom.remove(), 950);
-            if (playerBet > 0 && !hasCashedOut) renderPlayers();
-            setTimeout(startAutoRound, 1500);
-        }
-
-        actionBtn.addEventListener('click', handleRocketAction);
-
-        // ================================================================
-        //  لعبة XO
-        // ================================================================
-        let xoBoard = Array(9).fill(null),
-            xoTurn = 'X',
-            xoGameActive = false,
-            xoScoreX = 0,
-            xoScoreO = 0,
-            xoBet = 0,
-            xoLocked = false;
-        const xoBoardEl = document.getElementById('xo-board');
-        const xoStatusEl = document.getElementById('xo-status');
-        const xoScoreXEl = document.getElementById('xo-score-x');
-        const xoScoreOEl = document.getElementById('xo-score-o');
-        const xoBetInput = document.getElementById('xo-bet');
-
-        function renderXOBoard() {
-            xoBoardEl.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'xo-cell';
-                if (xoBoard[i]) cell.classList.add('taken');
-                if (xoBoard[i] === 'X') cell.classList.add('x');
-                if (xoBoard[i] === 'O') cell.classList.add('o');
-                cell.textContent = xoBoard[i] || '';
-                cell.dataset.index = i;
-                cell.addEventListener('click', () => handleXOClick(i));
-                xoBoardEl.appendChild(cell);
-            }
-            xoScoreXEl.textContent = xoScoreX;
-            xoScoreOEl.textContent = xoScoreO;
-            document.getElementById('u-bal-xo').textContent = userBalance.toFixed(2);
-        }
-
-        function resetXOScores() { xoScoreX = 0;
-            xoScoreO = 0;
-            xoBoard = Array(9).fill(null);
-            xoTurn = 'X';
-            xoGameActive = false;
-            xoLocked = false;
-            xoStatusEl.textContent = 'اضغط "بدء اللعبة"';
-            renderXOBoard(); }
-
-        function startXOGame() {
-            const amount = Number(xoBetInput.value);
-            if (!amount || amount <= 0) { xoStatusEl.textContent = '❌ أدخل مبلغ رهان صحيح'; return; }
-            if (amount > userBalance) { xoStatusEl.textContent = '❌ الرصيد غير كافٍ'; return; }
-            xoBet = amount;
-            xoBoard = Array(9).fill(null);
-            xoTurn = 'X';
-            xoGameActive = true;
-            xoLocked = false;
-            xoStatusEl.textContent = '❌ دورك، اختر خانة';
-            renderXOBoard();
-        }
-
-        function handleXOClick(index) {
-            if (!xoGameActive || xoLocked || xoTurn !== 'X') return;
-            if (xoBoard[index]) return;
-            makeXOMove(index, 'X');
-            if (checkXOWinner('X')) { endXOGame('X'); return; }
-            if (xoBoard.every(c => c !== null)) { endXOGame('draw'); return; }
-            xoTurn = 'O';
-            xoLocked = true;
-            xoStatusEl.textContent = '⏳ الذكاء الاصطناعي يفكر...';
-            setTimeout(() => {
-                if (!xoGameActive) return;
-                const aiMove = getAIMove();
-                if (aiMove === null) { xoLocked = false;
-                    xoTurn = 'X';
-                    xoStatusEl.textContent = '⚠️ لا توجد حركة'; return; }
-                makeXOMove(aiMove, 'O');
-                if (checkXOWinner('O')) { endXOGame('O'); return; }
-                if (xoBoard.every(c => c !== null)) { endXOGame('draw'); return; }
-                xoTurn = 'X';
-                xoLocked = false;
-                xoStatusEl.textContent = '❌ دورك';
-                renderXOBoard();
-            }, 400);
-        }
-
-        function makeXOMove(idx, p) { xoBoard[idx] = p;
-            renderXOBoard(); }
-
-        function checkXOWinner(p) {
-            const w = [
-                [0, 1, 2],
-                [3, 4, 5],
-                [6, 7, 8],
-                [0, 3, 6],
-                [1, 4, 7],
-                [2, 5, 8],
-                [0, 4, 8],
-                [2, 4, 6]
-            ];
-            return w.some(r => r.every(i => xoBoard[i] === p));
-        }
-
-        function getAIMove() {
-            for (let i = 0; i < 9; i++) { if (!xoBoard[i]) { xoBoard[i] = 'O'; if (checkXOWinner('O')) { xoBoard[i] =
-                        null; return i; } xoBoard[i] = null; } }
-            for (let i = 0; i < 9; i++) { if (!xoBoard[i]) { xoBoard[i] = 'X'; if (checkXOWinner('X')) { xoBoard[i] =
-                        null; return i; } xoBoard[i] = null; } }
-            const empty = xoBoard.map((v, i) => v === null ? i : null).filter(v => v !== null);
-            return empty.length ? empty[Math.floor(rng() * empty.length)] : null;
-        }
-
-        function endXOGame(winner) {
-            xoGameActive = false;
-            xoLocked = false;
-            let msg = '';
-            if (winner === 'X') {
-                const win = +(xoBet * 2).toFixed(2);
-                userBalance = +(userBalance + win).toFixed(2);
-                xoScoreX++;
-                msg = `🎉 فزت! ربحت ${win} TON`;
-                document.getElementById('u-bal-xo').textContent = userBalance.toFixed(2);
-                document.querySelectorAll('#u-bal, #u-bal-game').forEach(e => e.textContent = userBalance.toFixed(2));
-            } else if (winner === 'O') {
-                userBalance = +(userBalance - xoBet).toFixed(2);
-                xoScoreO++;
-                msg = `💀 خسرت! خسرت ${xoBet} TON`;
-                document.getElementById('u-bal-xo').textContent = userBalance.toFixed(2);
-                document.querySelectorAll('#u-bal, #u-bal-game').forEach(e => e.textContent = userBalance.toFixed(2));
-            } else { msg = `🤝 تعادل! استرد رهانك (${xoBet} TON)`; }
-            xoStatusEl.textContent = msg;
-            renderXOBoard();
-            setTimeout(() => {
-                if (!xoGameActive) {
-                    xoBoard = Array(9).fill(null);
-                    xoTurn = 'X';
-                    xoLocked = false;
-                    xoStatusEl.textContent = '❌ دورك، اختر خانة (اربح ضعف رهانك)';
-                    renderXOBoard();
-                }
-            }, 2500);
-        }
-
-        document.getElementById('xo-start-btn').addEventListener('click', startXOGame);
-        document.getElementById('xo-reset-btn').addEventListener('click', resetXOScores);
-
-        // ================================================================
-        //  لعبة الألغام (MINES)
-        // ================================================================
-        let minesData = [],
-            minesRevealed = [],
-            minesDiamondsFound = 0,
-            minesGameActive = false,
-            minesLocked = false,
-            minesBet = 0;
-        const minesBoardEl = document.getElementById('mines-board');
-        const minesStatusEl = document.getElementById('mines-status');
-        const minesDiamondsEl = document.getElementById('mines-diamonds');
-        const minesMinesEl = document.getElementById('mines-mines');
-        const minesBetInput = document.getElementById('mines-bet');
-        const minesBtn = document.getElementById('mines-btn');
-
-        function renderMinesBoard() {
-            minesBoardEl.innerHTML = '';
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'mine-cell';
-                if (minesRevealed[i]) {
-                    cell.classList.add('revealed');
-                    if (minesData[i] === 'diamond') { cell.classList.add('diamond');
-                        cell.textContent = '💎'; } else { cell.classList.add('mine');
-                        cell.textContent = '💣'; }
-                } else {
-                    cell.textContent = '❓';
-                    cell.addEventListener('click', () => handleMineClick(i));
-                }
-                minesBoardEl.appendChild(cell);
-            }
-            minesDiamondsEl.textContent = minesDiamondsFound;
-            const minesFound = minesRevealed.filter((v, i) => v && minesData[i] === 'mine').length;
-            minesMinesEl.textContent = minesFound;
-            document.getElementById('u-bal-mines').textContent = userBalance.toFixed(2);
-        }
-
-        function startMinesGame() {
-            const amount = Number(minesBetInput.value);
-            if (!amount || amount <= 0) { minesStatusEl.textContent = '❌ أدخل مبلغ صحيح';
-                minesStatusEl.className = 'status lose'; return; }
-            if (amount > userBalance) { minesStatusEl.textContent = '❌ الرصيد غير كافٍ';
-                minesStatusEl.className = 'status lose'; return; }
-            minesBet = amount;
-            userBalance = +(userBalance - amount).toFixed(2);
-            document.querySelectorAll('#u-bal, #u-bal-mines').forEach(e => e.textContent = userBalance.toFixed(2));
-            minesDiamondsFound = 0;
-            minesGameActive = true;
-            minesLocked = false;
-            minesData = Array(25).fill('mine');
-            const diamondIndices = [];
-            while (diamondIndices.length < 7) {
-                const idx = Math.floor(rng() * 25);
-                if (!diamondIndices.includes(idx)) diamondIndices.push(idx);
-            }
-            for (const idx of diamondIndices) minesData[idx] = 'diamond';
-            minesRevealed = Array(25).fill(false);
-            minesStatusEl.textContent = '💎 اختر خلية للحفر (6 ماسات للفوز)';
-            minesStatusEl.className = 'status info';
-            minesBtn.disabled = true;
-            renderMinesBoard();
-        }
-
-        function handleMineClick(index) {
-            if (!minesGameActive || minesLocked) return;
-            if (minesRevealed[index]) return;
-            minesRevealed[index] = true;
-            if (minesData[index] === 'mine') {
-                minesLocked = true;
-                minesGameActive = false;
-                minesStatusEl.textContent = `💥 لغم! خسرت ${minesBet} TON`;
-                minesStatusEl.className = 'status lose';
-                for (let i = 0; i < 25; i++) { if (!minesRevealed[i]) minesRevealed[i] = true; }
-                renderMinesBoard();
-                minesBtn.disabled = false;
-                const cells = minesBoardEl.children;
-                if (cells[index]) cells[index].classList.add('mine-explode');
-                return;
-            }
-            minesDiamondsFound++;
-            renderMinesBoard();
-            if (minesDiamondsFound >= 6) {
-                minesLocked = true;
-                minesGameActive = false;
-                const winAmount = +(minesBet * 3.5).toFixed(2);
-                userBalance = +(userBalance + winAmount).toFixed(2);
-                document.querySelectorAll('#u-bal, #u-bal-mines').forEach(e => e.textContent = userBalance.toFixed(2));
-                minesStatusEl.textContent = `🎉 فزت! ربحت ${winAmount} TON (6 ماسات)`;
-                minesStatusEl.className = 'status win';
-                for (let i = 0; i < 25; i++) { if (!minesRevealed[i]) minesRevealed[i] = true; }
-                renderMinesBoard();
-                minesBtn.disabled = false;
-            } else {
-                minesStatusEl.textContent = `💎 ماسة! (${minesDiamondsFound}/6) استمر`;
-                minesStatusEl.className = 'status info';
-            }
-        }
-
-        minesBtn.addEventListener('click', startMinesGame);
-
-        // ================================================================
-        //  روليت الكرات (BOX)
-        // ================================================================
-        let rouletteStats = { black: 0, white: 0, neon: 0, totalSpins: 0 };
-        let isSpinning = false;
-        const rouletteWheel = document.getElementById('roulette-wheel');
-        const rouletteCenter = document.getElementById('roulette-center');
-        const rouletteResult = document.getElementById('roulette-result');
-        const boxStatus = document.getElementById('box-status');
-        const boxBtn = document.getElementById('box-btn');
-        const boxBlackCount = document.getElementById('box-black-count');
-        const boxWhiteCount = document.getElementById('box-white-count');
-        const boxNeonCount = document.getElementById('box-neon-count');
-        const boxTotalOpens = document.getElementById('box-total-opens');
-
-        function buildRouletteWheel() {
-            const wheel = rouletteWheel;
-            wheel.querySelectorAll('.segment').forEach(el => el.remove());
-
-            const numSegments = SEGMENT_CONFIG.length;
-            const angleStep = 360 / numSegments;
-
-            SEGMENT_CONFIG.forEach((seg, i) => {
-                const startAngle = i * angleStep;
-                const midAngle = startAngle + angleStep / 2;
-                const color = seg.category === 'black' ? '#333' :
-                    seg.category === 'white' ? '#666' :
-                    seg.category === 'neon' ? `hsl(${i * 25 + 20}, 90%, 55%)` :
-                    `hsl(${i * 30 + 10}, 80%, 60%)`;
-
-                const segment = document.createElement('div');
-                segment.className = 'segment';
-                segment.style.transform = `rotate(${startAngle}deg) skewY(-${90 - angleStep/2}deg)`;
-                segment.style.background = `radial-gradient(circle at 30% 30%, ${color}, #111)`;
-                segment.style.border = '1px solid rgba(255,255,255,0.1)';
-                segment.style.overflow = 'hidden';
-
-                const label = document.createElement('div');
-                label.className = 'label';
-                label.style.setProperty('--angle', `${midAngle}deg`);
-                label.style.transform = `rotate(${midAngle}deg) translateX(15px)`;
-                label.textContent = seg.emoji;
-                label.style.fontSize = '22px';
-                label.style.color = '#fff';
-                label.style.textShadow = '0 0 10px rgba(0,0,0,0.8)';
-
-                segment.appendChild(label);
-                wheel.appendChild(segment);
-            });
-        }
-
-        function updateRouletteStats() {
-            boxBlackCount.textContent = rouletteStats.black;
-            boxWhiteCount.textContent = rouletteStats.white;
-            boxNeonCount.textContent = rouletteStats.neon;
-            boxTotalOpens.textContent = rouletteStats.totalSpins;
-            document.getElementById('box-coins').textContent = `رصيدك: ${userBalance} ₮`;
-        }
-
-        function spinRoulette() {
-            if (isSpinning) return;
-            if (userBalance < 10) {
-                boxStatus.textContent = '❌ رصيدك لا يكفي! تحتاج 10 ₮';
-                boxStatus.className = 'status lose';
-                return;
-            }
-
-            userBalance = +(userBalance - 10).toFixed(2);
-            document.querySelectorAll('#u-bal, #u-bal-game, #u-bal-xo, #u-bal-mines, #u-bal-box').forEach(el =>
-                el.textContent = userBalance.toFixed(2));
-            boxStatus.textContent = '🎡 جاري الدوران...';
-            boxStatus.className = 'status info';
-            boxBtn.disabled = true;
-            isSpinning = true;
-
-            const rand = rng();
-            let selectedSegment;
-            if (rand < 0.10) {
-                selectedSegment = SEGMENT_CONFIG.find(s => s.category === 'black');
-            } else if (rand < 0.20) {
-                selectedSegment = SEGMENT_CONFIG.find(s => s.category === 'white');
-            } else if (rand < 0.85) {
-                const neonSegments = SEGMENT_CONFIG.filter(s => s.category === 'neon');
-                selectedSegment = neonSegments[Math.floor(rng() * neonSegments.length)];
-            } else {
-                const extraSegments = SEGMENT_CONFIG.filter(s => s.category === 'extra');
-                selectedSegment = extraSegments[Math.floor(rng() * extraSegments.length)];
-            }
-
-            const numSegments = SEGMENT_CONFIG.length;
-            const angleStep = 360 / numSegments;
-            const selectedIndex = SEGMENT_CONFIG.indexOf(selectedSegment);
-            const targetAngle = 360 - (selectedIndex * angleStep + angleStep / 2);
-            const spins = 5 + Math.floor(rng() * 5);
-            const finalAngle = targetAngle + spins * 360;
-
-            rouletteWheel.style.transform = `rotate(${finalAngle}deg)`;
-
-            setTimeout(() => {
-                const emoji = selectedSegment.emoji;
-                const name = selectedSegment.label;
-                const price = selectedSegment.price;
-
-                if (selectedSegment.category === 'black') rouletteStats.black++;
-                else if (selectedSegment.category === 'white') rouletteStats.white++;
-                else rouletteStats.neon++;
-                rouletteStats.totalSpins++;
-
-                addToInventory(emoji, name, price);
-
-                rouletteResult.innerHTML = `<span class="ball-emoji">${emoji}</span> ${name} (${price} ₮)`;
-                boxStatus.textContent = `🎉 حصلت على ${name}! قيمتها ${price} ₮`;
-                boxStatus.className = 'status win';
-                updateRouletteStats();
-                updateBagUI();
-                updateHUD();
-
-                isSpinning = false;
-                boxBtn.disabled = false;
-            }, 4200);
-        }
-
-        boxBtn.addEventListener('click', spinRoulette);
-
-        // ================================================================
-        //  تهيئة اللعبة
-        // ================================================================
-        function initGame() {
-            document.querySelectorAll('#u-bal, #u-bal-game, #u-bal-xo, #u-bal-mines, #u-bal-box').forEach(e =>
-                e.textContent = userBalance.toFixed(2));
-            updateHUD();
-            updateBagUI();
-            updateRouletteStats();
-            renderHistory();
-            renderPlayers();
-            drawScene();
-            resetXOScores();
-            renderMinesBoard();
-            buildRouletteWheel();
-            bagToggleTop.style.display = 'flex';
-            console.log('🎮 جميع الألعاب جاهزة!');
-        }
-
-        window.toggleBag = toggleBag;
-        window.addEventListener('load', initGame);
-    </script>
+    }
+
+    window.addEventListener('resize', () => { if (document.getElementById('view-rocket').classList.contains('active')) initRocket(); });
+    rocketImage.onload=()=>{ if(document.getElementById('view-rocket').classList.contains('active')) renderCanvas(); };
+    renderHistory();
+</script>
 
 </body>
 </html>
